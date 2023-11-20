@@ -3,6 +3,7 @@ package com.mogilan.servlet;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.mogilan.exception.PathVariableException;
 import com.mogilan.exception.handler.ServletExceptionHandler;
 import com.mogilan.exception.handler.impl.ServletExceptionHandlerImpl;
 import com.mogilan.service.ClientService;
@@ -58,6 +59,10 @@ public class ClientServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) {
         try {
+            var pathInfo = req.getPathInfo();
+            if (pathInfo != null || !pathInfo.equals("/")){
+                throw new PathVariableException("Method PUT doesn't support path variable");
+            }
             var clientDto = readRequestJson(req, ClientDto.class);
             var createdClientDto = clientService.create(clientDto);
             writeJsonResponse(resp, HttpServletResponse.SC_CREATED, createdClientDto);
