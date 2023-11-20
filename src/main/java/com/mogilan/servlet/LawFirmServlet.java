@@ -3,6 +3,7 @@ package com.mogilan.servlet;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.mogilan.exception.PathVariableException;
 import com.mogilan.exception.handler.ServletExceptionHandler;
 import com.mogilan.exception.handler.impl.ServletExceptionHandlerImpl;
 import com.mogilan.service.LawFirmService;
@@ -24,8 +25,6 @@ public class LawFirmServlet extends HttpServlet {
     private final LawFirmService lawFirmService = LawFirmServiceImpl.getInstance();
     private final ServletExceptionHandler exceptionHandler = ServletExceptionHandlerImpl.getInstance();
     private final ObjectMapper objectMapper = new ObjectMapper();
-    private static final String UPDATED_MESSAGE = "UPDATED";
-    private static final String DELETED_MESSAGE = "DELETED";
 
     @Override
     public void init(ServletConfig config) throws ServletException {
@@ -58,6 +57,10 @@ public class LawFirmServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) {
         try {
+            var pathInfo = req.getPathInfo();
+            if (pathInfo != null && !pathInfo.equals("/")){
+                throw new PathVariableException("Method PUT doesn't support path variable");
+            }
             var lawFirmDto = readRequestJson(req, LawFirmDto.class);
             var createdLawFirmDto = lawFirmService.create(lawFirmDto);
             writeJsonResponse(resp, HttpServletResponse.SC_CREATED, createdLawFirmDto);
@@ -73,7 +76,7 @@ public class LawFirmServlet extends HttpServlet {
             var id = ServletsUtil.getPathVariable(pathInfo);
             var lawFirmDto = readRequestJson(req, LawFirmDto.class);
             lawFirmService.update(id, lawFirmDto);
-            writeJsonResponse(resp, HttpServletResponse.SC_OK, UPDATED_MESSAGE);
+            writeJsonResponse(resp, HttpServletResponse.SC_OK, ServletsUtil.UPDATED_MESSAGE);
         } catch (Exception e) {
             exceptionHandler.handleException(resp, e);
         }
@@ -85,7 +88,7 @@ public class LawFirmServlet extends HttpServlet {
             var pathInfo = req.getPathInfo();
             var id = ServletsUtil.getPathVariable(pathInfo);
             lawFirmService.deleteById(id);
-            writeJsonResponse(resp, HttpServletResponse.SC_OK, DELETED_MESSAGE);
+            writeJsonResponse(resp, HttpServletResponse.SC_OK, ServletsUtil.DELETED_MESSAGE);
         } catch (Exception e) {
             exceptionHandler.handleException(resp, e);
         }

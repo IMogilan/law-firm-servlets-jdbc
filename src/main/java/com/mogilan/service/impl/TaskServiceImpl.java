@@ -4,7 +4,9 @@ import com.mogilan.exception.EntityNotFoundException;
 import com.mogilan.repository.TaskDao;
 import com.mogilan.repository.impl.TaskDaoImpl;
 import com.mogilan.service.ClientService;
+import com.mogilan.service.LawyerService;
 import com.mogilan.service.TaskService;
+import com.mogilan.servlet.dto.LawyerDto;
 import com.mogilan.servlet.dto.TaskDto;
 import com.mogilan.servlet.mapper.TaskMapper;
 import com.mogilan.servlet.mapper.impl.TaskMapperImpl;
@@ -17,6 +19,7 @@ public class TaskServiceImpl implements TaskService {
     private final TaskDao taskDao = TaskDaoImpl.getInstance();
     private final TaskMapper taskMapper = TaskMapperImpl.getInstance();
     private final static ClientService clientService = ClientServiceImpl.getInstance();
+    private final LawyerService lawyerService = LawyerServiceImpl.getInstance();
 
     @Override
     public TaskDto create(TaskDto newTaskDto) {
@@ -42,6 +45,24 @@ public class TaskServiceImpl implements TaskService {
 
         var tasks = taskDao.findAllByClientId(clientId);
         return taskMapper.toDtoList(tasks);
+    }
+
+    @Override
+    public List<TaskDto> readAllByLawyerId(Long lawyerId) {
+        Objects.requireNonNull(lawyerId);
+
+        var tasks = taskDao.findAllByClientId(lawyerId);
+        return taskMapper.toDtoList(tasks);
+    }
+
+    @Override
+    public boolean isLawyerResponsibleForTask(Long taskId, Long lawyerId) {
+        var lawyerDtoList = lawyerService.readAllByTaskId(taskId);
+        if(lawyerDtoList.isEmpty()){
+            return false;
+        }
+        var lawyersIds = lawyerDtoList.stream().map(LawyerDto::getId).toList();
+        return lawyersIds.contains(lawyerId);
     }
 
     @Override

@@ -5,6 +5,7 @@ import com.mogilan.exception.DaoException;
 import com.mogilan.exception.EntityNotFoundException;
 import com.mogilan.exception.PathVariableException;
 import com.mogilan.exception.handler.ServletExceptionHandler;
+import com.mogilan.util.ServletsUtil;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
@@ -50,15 +51,15 @@ public final class ServletExceptionHandlerImpl implements ServletExceptionHandle
 
     public String getErrorStatusMessage(Exception e) {
         if (e instanceof DaoException) {
-            return "BAD_REQUEST";
+            return ServletsUtil.BAD_REQUEST_MESSAGE;
         } else if (e instanceof PathVariableException) {
             return e.getMessage();
         } else if (e instanceof IllegalArgumentException) {
-            return "BAD_REQUEST";
+            return ServletsUtil.BAD_REQUEST_MESSAGE;
         } else if (e instanceof EntityNotFoundException) {
-            return "NOT_FOUND";
+            return ServletsUtil.NOT_FOUND_MESSAGE;
         } else {
-            return "INTERNAL_SERVER_ERROR";
+            return ServletsUtil.INTERNAL_SERVER_ERROR;
         }
     }
 }

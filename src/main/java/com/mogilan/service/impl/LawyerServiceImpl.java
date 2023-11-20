@@ -53,6 +53,14 @@ public class LawyerServiceImpl implements LawyerService {
     }
 
     @Override
+    public List<LawyerDto> readAllByTaskId(Long taskId) {
+        Objects.requireNonNull(taskId);
+
+        var lawyers = lawyerDao.findAllByLawFirmId(taskId);
+        return lawyerMapper.toDtoList(lawyers);
+    }
+
+    @Override
     public LawyerDto readById(Long id) {
         Objects.requireNonNull(id);
 

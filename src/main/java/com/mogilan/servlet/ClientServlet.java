@@ -25,8 +25,6 @@ public class ClientServlet extends HttpServlet {
     private final ClientService clientService = ClientServiceImpl.getInstance();
     private final ServletExceptionHandler exceptionHandler = ServletExceptionHandlerImpl.getInstance();
     private final ObjectMapper objectMapper = new ObjectMapper();
-    private static final String UPDATED_MESSAGE = "UPDATED";
-    private static final String DELETED_MESSAGE = "DELETED";
 
     @Override
     public void init(ServletConfig config) throws ServletException {
@@ -60,7 +58,7 @@ public class ClientServlet extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) {
         try {
             var pathInfo = req.getPathInfo();
-            if (pathInfo != null || !pathInfo.equals("/")){
+            if (pathInfo != null && !pathInfo.equals("/")){
                 throw new PathVariableException("Method PUT doesn't support path variable");
             }
             var clientDto = readRequestJson(req, ClientDto.class);
@@ -78,7 +76,7 @@ public class ClientServlet extends HttpServlet {
             var id = ServletsUtil.getPathVariable(pathInfo);
             var clientDto = readRequestJson(req, ClientDto.class);
             clientService.update(id, clientDto);
-            writeJsonResponse(resp, HttpServletResponse.SC_OK, UPDATED_MESSAGE);
+            writeJsonResponse(resp, HttpServletResponse.SC_OK, ServletsUtil.UPDATED_MESSAGE);
         } catch (Exception e) {
             exceptionHandler.handleException(resp, e);
         }
@@ -90,7 +88,7 @@ public class ClientServlet extends HttpServlet {
             var pathInfo = req.getPathInfo();
             var id = ServletsUtil.getPathVariable(pathInfo);
             clientService.deleteById(id);
-            writeJsonResponse(resp, HttpServletResponse.SC_OK, DELETED_MESSAGE);
+            writeJsonResponse(resp, HttpServletResponse.SC_OK, ServletsUtil.DELETED_MESSAGE);
         } catch (Exception e) {
             exceptionHandler.handleException(resp, e);
         }

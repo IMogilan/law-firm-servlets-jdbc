@@ -6,4 +6,5 @@ import java.util.List;
 
 public interface LawyerService extends CrudService<LawyerDto, Long>{
     List<LawyerDto> readAllByLawFirmId(Long lawFirmId);
+    List<LawyerDto> readAllByTaskId(Long taskId);
 }

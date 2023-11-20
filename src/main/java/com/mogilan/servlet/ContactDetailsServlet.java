@@ -1,6 +1,7 @@
 package com.mogilan.servlet;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mogilan.exception.PathVariableException;
 import com.mogilan.exception.handler.ServletExceptionHandler;
 import com.mogilan.exception.handler.impl.ServletExceptionHandlerImpl;
 import com.mogilan.service.ContactDetailsService;
@@ -21,8 +22,6 @@ public class ContactDetailsServlet extends HttpServlet {
     private final ContactDetailsService contactDetailsService = ContactDetailsServiceImpl.getInstance();
     private final ServletExceptionHandler exceptionHandler = ServletExceptionHandlerImpl.getInstance();
     private final ObjectMapper objectMapper = new ObjectMapper();
-    private static final String UPDATED_MESSAGE = "UPDATED";
-    private static final String DELETED_MESSAGE = "DELETED";
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
@@ -48,6 +47,10 @@ public class ContactDetailsServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) {
         try {
+            var pathInfo = req.getPathInfo();
+            if (pathInfo != null && !pathInfo.equals("/")){
+                throw new PathVariableException("Method PUT doesn't support path variable");
+            }
             var contactDetailsDto = readRequestJson(req, ContactDetailsDto.class);
             var createdContactDetailsDto = contactDetailsService.create(contactDetailsDto);
             writeJsonResponse(resp, HttpServletResponse.SC_CREATED, createdContactDetailsDto);
@@ -63,7 +66,7 @@ public class ContactDetailsServlet extends HttpServlet {
             var id = ServletsUtil.getPathVariable(pathInfo);
             var contactDetailsDto = readRequestJson(req, ContactDetailsDto.class);
             contactDetailsService.update(id, contactDetailsDto);
-            writeJsonResponse(resp, HttpServletResponse.SC_OK, UPDATED_MESSAGE);
+            writeJsonResponse(resp, HttpServletResponse.SC_OK, ServletsUtil.UPDATED_MESSAGE);
         } catch (Exception e) {
             exceptionHandler.handleException(resp, e);
         }
@@ -75,7 +78,7 @@ public class ContactDetailsServlet extends HttpServlet {
             var pathInfo = req.getPathInfo();
             var id = ServletsUtil.getPathVariable(pathInfo);
             contactDetailsService.deleteById(id);
-            writeJsonResponse(resp, HttpServletResponse.SC_OK, DELETED_MESSAGE);
+            writeJsonResponse(resp, HttpServletResponse.SC_OK, ServletsUtil.DELETED_MESSAGE);
         } catch (Exception e) {
             exceptionHandler.handleException(resp, e);
         }

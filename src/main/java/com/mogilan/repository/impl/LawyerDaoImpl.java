@@ -182,7 +182,7 @@ public class LawyerDaoImpl implements LawyerDao {
             preparedStatement.setString(3, entity.getJobTitle().name());
             preparedStatement.setDouble(4, entity.getHourlyRate());
             preparedStatement.setObject(5, entity.getLawFirm() == null ? null : entity.getLawFirm().getId(), Types.BIGINT);
-            preparedStatement.setLong(7, entity.getId());
+            preparedStatement.setLong(6, entity.getId());
 
             updateLinksToTasks(entity, connection);
 
