@@ -30,7 +30,7 @@ public class ClientMapperImpl implements ClientMapper {
         var clientDto = new ClientDto(client.getId(), client.getName(), client.getDescription(), null);
         var clientDtoCopy = new ClientDto(client.getId(), client.getName(), client.getDescription(), null);
 
-        var taskDtoList = getTaskDtoList(client, clientDtoCopy);
+        var taskDtoList = getTaskDtoList(client, clientDto);
         clientDto.setTasks(taskDtoList);
 
         return clientDto;
@@ -89,7 +89,7 @@ public class ClientMapperImpl implements ClientMapper {
                 task.getStatus(), task.getReceiptDate(), task.getDueDate(), task.getCompletionDate(),
                 task.getHoursSpentOnTask(), resultDtoCopy, null);
 
-        var lawyerDtoList = getLawyerDtoList(task, taskDtoCopy);
+        var lawyerDtoList = getLawyerDtoList(task, taskDto);
         taskDto.setLawyers(lawyerDtoList);
 
         return taskDto;

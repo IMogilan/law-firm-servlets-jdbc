@@ -1,6 +1,7 @@
 package com.mogilan.servlet.dto;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.util.List;
@@ -84,12 +85,10 @@ public class LawyerDto {
         this.hourlyRate = hourlyRate;
     }
 
-    @JsonIgnore
     public LawFirmDto getLawFirm() {
         return lawFirm;
     }
 
-    @JsonIgnore
     public void setLawFirm(LawFirmDto lawFirm) {
         this.lawFirm = lawFirm;
     }
