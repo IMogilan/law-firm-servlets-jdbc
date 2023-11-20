@@ -21,9 +21,9 @@ public class TaskDto {
     private LocalDate dueDate;
     private LocalDate completionDate;
     private double hoursSpentOnTask;
-    @JsonIgnore
+    @JsonBackReference
     private ClientDto client;
-    @JsonManagedReference("tasks")
+    @JsonIgnore
     private List<LawyerDto> lawyers;
 
     public TaskDto() {
@@ -130,22 +130,18 @@ public class TaskDto {
         this.hoursSpentOnTask = hoursSpentOnTask;
     }
 
-    @JsonIgnore
     public ClientDto getClient() {
         return client;
     }
 
-    @JsonIgnore
     public void setClient(ClientDto client) {
         this.client = client;
     }
 
-    @JsonManagedReference("tasks")
     public List<LawyerDto> getLawyers() {
         return lawyers;
     }
 
-    @JsonManagedReference("tasks")
     public void setLawyers(List<LawyerDto> lawyers) {
         this.lawyers = lawyers;
     }

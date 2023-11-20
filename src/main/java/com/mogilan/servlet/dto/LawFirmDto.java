@@ -9,7 +9,7 @@ public class LawFirmDto {
     private Long id;
     private String name;
     private LocalDate companyStartDay;
-//    @JsonManagedReference
+    @JsonManagedReference
     private List<LawyerDto> lawyers;
 
     public LawFirmDto() {

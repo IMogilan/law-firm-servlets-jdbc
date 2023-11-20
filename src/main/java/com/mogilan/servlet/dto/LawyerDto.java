@@ -12,10 +12,10 @@ public class LawyerDto {
     private JobTitle jobTitle;
     private double hourlyRate;
     //    @JsonBackReference("lawyers"
-    @JsonIgnore
+    @JsonBackReference
     private LawFirmDto lawFirm;
     private ContactDetailsDto contacts;
-    @JsonBackReference("lawyers")
+    @JsonIgnore
     private List<TaskDto> tasks;
 
     public LawyerDto(String firstName, String lastName, JobTitle jobTitle,
@@ -102,12 +102,10 @@ public class LawyerDto {
         this.contacts = contacts;
     }
 
-    @JsonBackReference("lawyers")
     public List<TaskDto> getTasks() {
         return tasks;
     }
 
-    @JsonBackReference("lawyers")
     public void setTasks(List<TaskDto> tasks) {
         this.tasks = tasks;
     }

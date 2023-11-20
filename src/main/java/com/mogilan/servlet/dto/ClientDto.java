@@ -10,7 +10,7 @@ public class ClientDto {
     private Long id;
     private String name;
     private String description;
-//    @JsonManagedReference("client")
+    @JsonManagedReference
     private List<TaskDto> tasks;
 
     public ClientDto() {
@@ -53,11 +53,9 @@ public class ClientDto {
         this.description = description;
     }
 
-    @JsonManagedReference
     public List<TaskDto> getTasks() {
         return tasks;
     }
-    @JsonManagedReference
     public void setTasks(List<TaskDto> tasks) {
         this.tasks = tasks;
     }
