@@ -47,7 +47,7 @@ public class ContactDetailsMapperImpl implements ContactDetailsMapper {
         return contactDetailsDtoList.stream().map(this::toEntity).toList();
     }
 
-    public static ContactDetailsMapperImpl getInstance(){
+    public static ContactDetailsMapperImpl getInstance() {
         return INSTANCE;
     }
 }

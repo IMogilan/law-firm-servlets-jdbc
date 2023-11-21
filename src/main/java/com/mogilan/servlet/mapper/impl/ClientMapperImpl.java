@@ -129,7 +129,7 @@ public class ClientMapperImpl implements ClientMapper {
     }
 
     private List<Task> getTaskEntityList(ClientDto clientDto, Client resultEntityCopy) {
-        if(clientDto.getTasks() == null){
+        if (clientDto.getTasks() == null) {
             return Collections.emptyList();
         }
         return clientDto.getTasks().stream()
@@ -154,7 +154,7 @@ public class ClientMapperImpl implements ClientMapper {
     }
 
     private List<Lawyer> getLawyerList(TaskDto taskDto, Task taskEntityCopy) {
-        if(taskDto.getLawyers() == null){
+        if (taskDto.getLawyers() == null) {
             return Collections.emptyList();
         }
         return taskDto.getLawyers().stream()

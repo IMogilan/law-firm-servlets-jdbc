@@ -82,6 +82,7 @@ public class TaskDaoImpl implements TaskDao {
             """;
 
     private final TaskResultSetMapperImpl resultSetMapper = TaskResultSetMapperImpl.getInstance();
+
     private TaskDaoImpl() {
     }
 

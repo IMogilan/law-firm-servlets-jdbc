@@ -21,7 +21,7 @@ public final class PropertiesUtil {
         PROPERTIES.setProperty(key, value);
     }
 
-    public static void setDefaultProperties(){
+    public static void setDefaultProperties() {
         PROPERTIES.clear();
         loadProperties();
     }

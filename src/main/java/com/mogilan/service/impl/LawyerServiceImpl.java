@@ -101,7 +101,7 @@ public class LawyerServiceImpl implements LawyerService {
 
     private void createUnsavedLawFirm(LawyerDto lawyerDto) {
         var lawFirm = lawyerDto.getLawFirm();
-        if((lawFirm != null) && ((lawFirm.getId() == null) || (!lawFirmService.existsById(lawFirm.getId())))){
+        if ((lawFirm != null) && ((lawFirm.getId() == null) || (!lawFirmService.existsById(lawFirm.getId())))) {
             var createdLawFirmDto = lawFirmService.create(lawFirm);
             lawyerDto.setLawFirm(createdLawFirmDto);
         }
@@ -115,7 +115,7 @@ public class LawyerServiceImpl implements LawyerService {
 
     private void updateContactDetailsDto(Long id, LawyerDto lawyerDto) {
         ContactDetailsDto contactDetailsDto = lawyerDto.getContacts() == null ? new ContactDetailsDto() : lawyerDto.getContacts();
-        if(contactDetailsDto.getId() == null) {
+        if (contactDetailsDto.getId() == null) {
             contactDetailsDto.setId(id);
             contactDetailsService.create(contactDetailsDto);
         } else {

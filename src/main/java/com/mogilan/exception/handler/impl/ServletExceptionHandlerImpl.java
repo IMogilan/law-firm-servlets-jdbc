@@ -33,7 +33,7 @@ public final class ServletExceptionHandlerImpl implements ServletExceptionHandle
         }
     }
 
-    public static ServletExceptionHandler getInstance(){
+    public static ServletExceptionHandler getInstance() {
         return INSTANCE;
     }
 

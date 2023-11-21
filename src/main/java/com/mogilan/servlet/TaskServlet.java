@@ -137,7 +137,7 @@ public class TaskServlet extends HttpServlet {
                 writeJsonResponse(resp, HttpServletResponse.SC_NO_CONTENT, lawyerDtoList);
             }
         } else if (taskId != null) {
-            if(taskService.isLawyerResponsibleForTask(taskId, lawyerId)){
+            if (taskService.isLawyerResponsibleForTask(taskId, lawyerId)) {
                 var lawyerDto = lawyerService.readById(lawyerId);
                 writeJsonResponse(resp, HttpServletResponse.SC_OK, lawyerDto);
             } else {
@@ -166,7 +166,7 @@ public class TaskServlet extends HttpServlet {
         var taskId = ids.resourceId;
         var lawyerId = ids.subResourceId;
         if (taskId != null && lawyerId != null) {
-            if(taskService.isLawyerResponsibleForTask(taskId, lawyerId)){
+            if (taskService.isLawyerResponsibleForTask(taskId, lawyerId)) {
                 var lawyerDto = readRequestJson(req, LawyerDto.class);
                 lawyerService.update(lawyerId, lawyerDto);
                 writeJsonResponse(resp, HttpServletResponse.SC_OK, ServletsUtil.UPDATED_MESSAGE);
@@ -183,7 +183,7 @@ public class TaskServlet extends HttpServlet {
         var taskId = ids.resourceId;
         var lawyerId = ids.subResourceId;
         if (taskId != null && lawyerId != null) {
-            if(taskService.isLawyerResponsibleForTask(taskId, lawyerId)){
+            if (taskService.isLawyerResponsibleForTask(taskId, lawyerId)) {
                 lawyerService.deleteById(lawyerId);
                 writeJsonResponse(resp, HttpServletResponse.SC_OK, ServletsUtil.DELETED_MESSAGE);
             } else {

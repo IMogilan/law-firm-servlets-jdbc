@@ -58,7 +58,7 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public boolean isLawyerResponsibleForTask(Long taskId, Long lawyerId) {
         var lawyerDtoList = lawyerService.readAllByTaskId(taskId);
-        if(lawyerDtoList.isEmpty()){
+        if (lawyerDtoList.isEmpty()) {
             return false;
         }
         var lawyersIds = lawyerDtoList.stream().map(LawyerDto::getId).toList();
@@ -104,8 +104,8 @@ public class TaskServiceImpl implements TaskService {
 
     private void createUnsavedClient(TaskDto newTaskDto) {
         var client = newTaskDto.getClient();
-        if((client != null) && (client.getName() != null) && (!clientService.existsByName(client.getName()) &&
-                ((client.getId() == null) || (!clientService.existsById(client.getId()))))){
+        if ((client != null) && (client.getName() != null) && (!clientService.existsByName(client.getName()) &&
+                ((client.getId() == null) || (!clientService.existsById(client.getId()))))) {
             var createdClientDto = clientService.create(client);
             newTaskDto.setClient(createdClientDto);
         }

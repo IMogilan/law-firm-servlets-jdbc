@@ -37,10 +37,10 @@ public class LawyerResultSetMapperImpl implements LawyerResultSetMapper {
             var lawFirm = resultSet.getObject("law_firm_id", Long.class) == null ?
                     null :
                     new LawFirm(
-                    resultSet.getObject("law_firm_id", Long.class),
-                    resultSet.getString("name"),
-                    resultSet.getDate("company_start_day").toLocalDate()
-            );
+                            resultSet.getObject("law_firm_id", Long.class),
+                            resultSet.getString("name"),
+                            resultSet.getDate("company_start_day").toLocalDate()
+                    );
 
             var id = resultSet.getLong("id");
             var taskList = taskDao.findAllByLawyerId(id);

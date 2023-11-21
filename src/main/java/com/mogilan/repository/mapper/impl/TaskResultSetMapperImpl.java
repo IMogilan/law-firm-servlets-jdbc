@@ -117,15 +117,15 @@ public class TaskResultSetMapperImpl implements TaskResultSetMapper {
         var lawyer = resultSet.getObject("lawyer_id", Long.class) == null ?
                 null :
                 new Lawyer(
-                resultSet.getObject("lawyer_id", Long.class),
-                resultSet.getString("first_name"),
-                resultSet.getString("last_name"),
-                resultSet.getString("job_title") == null ? null : JobTitle.valueOf(resultSet.getString("job_title")),
-                resultSet.getDouble("hourly_rate"),
+                        resultSet.getObject("lawyer_id", Long.class),
+                        resultSet.getString("first_name"),
+                        resultSet.getString("last_name"),
+                        resultSet.getString("job_title") == null ? null : JobTitle.valueOf(resultSet.getString("job_title")),
+                        resultSet.getDouble("hourly_rate"),
                         lawFirm,
                         contactDetails,
-                List.of(currentTask)
-        );
+                        List.of(currentTask)
+                );
         return lawyer;
     }
 

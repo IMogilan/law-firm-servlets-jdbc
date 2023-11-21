@@ -94,7 +94,7 @@ public class TaskMapperImpl implements TaskMapper {
     }
 
     private List<LawyerDto> getLawyerDtoList(Task task, TaskDto resultDto) {
-        if(task.getLawyers() == null){
+        if (task.getLawyers() == null) {
             return Collections.emptyList();
         }
         return task.getLawyers().stream()
@@ -124,7 +124,7 @@ public class TaskMapperImpl implements TaskMapper {
     }
 
     private List<Lawyer> getLawyerList(TaskDto taskDto, Task resultEntity) {
-        if(taskDto.getLawyers() == null){
+        if (taskDto.getLawyers() == null) {
             return Collections.emptyList();
         }
         return taskDto.getLawyers().stream()

@@ -179,10 +179,10 @@ public class LawyerServlet extends HttpServlet {
 
     private void processDoDeleteForSubResources(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         var ids = getResourcesIds(req);
-        var lawyerId  = ids.resourceId();
+        var lawyerId = ids.resourceId();
         var taskId = ids.subResourceId();
         if (taskId != null && lawyerId != null) {
-            if(taskService.isLawyerResponsibleForTask(taskId, lawyerId)){
+            if (taskService.isLawyerResponsibleForTask(taskId, lawyerId)) {
                 taskService.deleteById(taskId);
                 writeJsonResponse(resp, HttpServletResponse.SC_OK, ServletsUtil.DELETED_MESSAGE);
             } else {

@@ -48,7 +48,7 @@ public class ContactDetailsServlet extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) {
         try {
             var pathInfo = req.getPathInfo();
-            if (pathInfo != null && !pathInfo.equals("/")){
+            if (pathInfo != null && !pathInfo.equals("/")) {
                 throw new PathVariableException("Method PUT doesn't support path variable");
             }
             var contactDetailsDto = readRequestJson(req, ContactDetailsDto.class);

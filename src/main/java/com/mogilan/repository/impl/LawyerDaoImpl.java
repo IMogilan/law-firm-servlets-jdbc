@@ -297,7 +297,7 @@ public class LawyerDaoImpl implements LawyerDao {
         StringBuilder builder = new StringBuilder(firstPart);
         for (int i = 0; i < removedIds.size(); i++) {
             builder.append(removedIds.get(i));
-            if(i != removedIds.size() - 1){
+            if (i != removedIds.size() - 1) {
                 builder.append(", ");
             } else {
                 builder.append(lastPart);

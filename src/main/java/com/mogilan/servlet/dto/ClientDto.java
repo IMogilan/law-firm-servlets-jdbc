@@ -1,9 +1,6 @@
 package com.mogilan.servlet.dto;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import java.util.List;
 
@@ -57,6 +54,7 @@ public class ClientDto {
     public List<TaskDto> getTasks() {
         return tasks;
     }
+
     public void setTasks(List<TaskDto> tasks) {
         this.tasks = tasks;
     }
