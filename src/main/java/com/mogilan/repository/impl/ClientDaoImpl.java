@@ -1,11 +1,12 @@
 package com.mogilan.repository.impl;
 
+import com.mogilan.db.ConnectionPool;
 import com.mogilan.repository.ClientDao;
 import com.mogilan.model.Client;
 import com.mogilan.exception.DaoException;
 import com.mogilan.repository.mapper.ClientResultSetMapper;
 import com.mogilan.repository.mapper.impl.ClientResultSetMapperImpl;
-import com.mogilan.util.ConnectionPool;
+import com.mogilan.db.impl.ConnectionPoolImpl;
 
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -14,7 +15,6 @@ import java.util.List;
 import java.util.Optional;
 
 public class ClientDaoImpl implements ClientDao {
-    private static final ClientDaoImpl INSTANCE = new ClientDaoImpl();
     private static final String FIND_ALL_SQL = """
             SELECT  id,
                     name,
@@ -42,14 +42,17 @@ public class ClientDaoImpl implements ClientDao {
             FROM clients
             WHERE id = ?
             """;
-    private final ClientResultSetMapper resultSetMapper = ClientResultSetMapperImpl.getInstance();
+    private final ConnectionPool connectionPool;
+    private final ClientResultSetMapper resultSetMapper;
 
-    private ClientDaoImpl() {
+    public ClientDaoImpl(ConnectionPool connectionPool, ClientResultSetMapper resultSetMapper) {
+        this.connectionPool = connectionPool;
+        this.resultSetMapper = resultSetMapper;
     }
 
     @Override
     public List<Client> findAll() {
-        try (var connection = ConnectionPool.getConnection();
+        try (var connection = connectionPool.getConnection();
              var preparedStatement = connection.prepareStatement(FIND_ALL_SQL)) {
             List<Client> clients = new ArrayList<>();
 
@@ -66,7 +69,7 @@ public class ClientDaoImpl implements ClientDao {
 
     @Override
     public Optional<Client> findById(Long id) {
-        try (var connection = ConnectionPool.getConnection();
+        try (var connection = connectionPool.getConnection();
              var preparedStatement = connection.prepareStatement(FIND_BY_ID_SQL)) {
             Client client = null;
 
@@ -84,7 +87,7 @@ public class ClientDaoImpl implements ClientDao {
 
     @Override
     public Optional<Client> findByName(String name) {
-        try (var connection = ConnectionPool.getConnection();
+        try (var connection = connectionPool.getConnection();
              var preparedStatement = connection.prepareStatement(FIND_BY_NAME_SQL)) {
             Client client = null;
 
@@ -107,7 +110,7 @@ public class ClientDaoImpl implements ClientDao {
             update(entity);
             return findById(id).get();
         }
-        try (var connection = ConnectionPool.getConnection();
+        try (var connection = connectionPool.getConnection();
              var preparedStatement = connection.prepareStatement(SAVE_SQL, Statement.RETURN_GENERATED_KEYS)) {
 
             preparedStatement.setString(1, entity.getName());
@@ -126,7 +129,7 @@ public class ClientDaoImpl implements ClientDao {
 
     @Override
     public boolean update(Client entity) {
-        try (var connection = ConnectionPool.getConnection();
+        try (var connection = connectionPool.getConnection();
              var preparedStatement = connection.prepareStatement(UPDATE_SQL)) {
 
             preparedStatement.setString(1, entity.getName());
@@ -141,16 +144,12 @@ public class ClientDaoImpl implements ClientDao {
 
     @Override
     public boolean delete(Long id) {
-        try (var connection = ConnectionPool.getConnection();
+        try (var connection = connectionPool.getConnection();
              var preparedStatement = connection.prepareStatement(DELETE_SQL)) {
             preparedStatement.setLong(1, id);
             return preparedStatement.executeUpdate() > 0;
         } catch (SQLException e) {
             throw new DaoException(e);
         }
-    }
-
-    public static ClientDaoImpl getInstance() {
-        return INSTANCE;
     }
 }

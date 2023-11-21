@@ -2,22 +2,20 @@ package com.mogilan.service.impl;
 
 import com.mogilan.exception.EntityNotFoundException;
 import com.mogilan.repository.ContactDetailsDao;
-import com.mogilan.repository.impl.ContactDetailsDaoImpl;
 import com.mogilan.service.ContactDetailsService;
 import com.mogilan.servlet.dto.ContactDetailsDto;
 import com.mogilan.servlet.mapper.ContactDetailsMapper;
-import com.mogilan.servlet.mapper.impl.ContactDetailsMapperImpl;
 
 import java.util.List;
 import java.util.Objects;
 
 public class ContactDetailsServiceImpl implements ContactDetailsService {
+    private final ContactDetailsDao contactDetailsDao;
+    private final ContactDetailsMapper contactDetailsMapper;
 
-    private static final ContactDetailsServiceImpl INSTANCE = new ContactDetailsServiceImpl();
-    private final ContactDetailsDao contactDetailsDao = ContactDetailsDaoImpl.getInstance();
-    private final ContactDetailsMapper contactDetailsMapper = ContactDetailsMapperImpl.getInstance();
-
-    private ContactDetailsServiceImpl() {
+    public ContactDetailsServiceImpl(ContactDetailsDao contactDetailsDao, ContactDetailsMapper contactDetailsMapper) {
+        this.contactDetailsDao = contactDetailsDao;
+        this.contactDetailsMapper = contactDetailsMapper;
     }
 
     @Override
@@ -63,9 +61,5 @@ public class ContactDetailsServiceImpl implements ContactDetailsService {
             throw new EntityNotFoundException("Contacts details with id = " + id + " not found");
         }
         contactDetailsDao.delete(id);
-    }
-
-    public static ContactDetailsServiceImpl getInstance() {
-        return INSTANCE;
     }
 }

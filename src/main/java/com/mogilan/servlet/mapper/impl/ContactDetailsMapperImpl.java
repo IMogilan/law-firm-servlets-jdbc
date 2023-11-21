@@ -10,9 +10,7 @@ import java.util.Objects;
 
 public class ContactDetailsMapperImpl implements ContactDetailsMapper {
 
-    private static final ContactDetailsMapperImpl INSTANCE = new ContactDetailsMapperImpl();
-
-    private ContactDetailsMapperImpl() {
+    public ContactDetailsMapperImpl() {
     }
 
     @Override
@@ -45,9 +43,5 @@ public class ContactDetailsMapperImpl implements ContactDetailsMapper {
             return Collections.emptyList();
         }
         return contactDetailsDtoList.stream().map(this::toEntity).toList();
-    }
-
-    public static ContactDetailsMapperImpl getInstance() {
-        return INSTANCE;
     }
 }

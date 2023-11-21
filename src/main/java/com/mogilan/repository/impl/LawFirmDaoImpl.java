@@ -1,13 +1,12 @@
 package com.mogilan.repository.impl;
 
-import com.mogilan.model.Lawyer;
-import com.mogilan.model.Task;
+import com.mogilan.db.ConnectionPool;
 import com.mogilan.repository.LawFirmDao;
 import com.mogilan.model.LawFirm;
 import com.mogilan.exception.DaoException;
 import com.mogilan.repository.mapper.LawFirmResultSetMapper;
 import com.mogilan.repository.mapper.impl.LawFirmResultSetMapperImpl;
-import com.mogilan.util.ConnectionPool;
+import com.mogilan.db.impl.ConnectionPoolImpl;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -15,7 +14,6 @@ import java.util.List;
 import java.util.Optional;
 
 public class LawFirmDaoImpl implements LawFirmDao {
-    private static final LawFirmDaoImpl INSTANCE = new LawFirmDaoImpl();
     private static final String FIND_ALL_SQL = """
             SELECT  id,
                     name,
@@ -43,14 +41,17 @@ public class LawFirmDaoImpl implements LawFirmDao {
             FROM law_firms
             WHERE id = ?
             """;
-    private final LawFirmResultSetMapper resultSetMapper = LawFirmResultSetMapperImpl.getInstance();
+    private final ConnectionPool connectionPool;
+    private final LawFirmResultSetMapper resultSetMapper;
 
-    private LawFirmDaoImpl() {
+    public LawFirmDaoImpl(ConnectionPool connectionPool, LawFirmResultSetMapper resultSetMapper) {
+        this.connectionPool = connectionPool;
+        this.resultSetMapper = resultSetMapper;
     }
 
     @Override
     public List<LawFirm> findAll() {
-        try (var connection = ConnectionPool.getConnection();
+        try (var connection = connectionPool.getConnection();
              var preparedStatement = connection.prepareStatement(FIND_ALL_SQL)) {
             List<LawFirm> lawFirmList = new ArrayList<>();
 
@@ -67,7 +68,7 @@ public class LawFirmDaoImpl implements LawFirmDao {
 
     @Override
     public Optional<LawFirm> findById(Long id) {
-        try (var connection = ConnectionPool.getConnection();
+        try (var connection = connectionPool.getConnection();
              var preparedStatement = connection.prepareStatement(FIND_BY_ID_SQL)) {
             LawFirm lawFirm = null;
 
@@ -85,7 +86,7 @@ public class LawFirmDaoImpl implements LawFirmDao {
 
     @Override
     public Optional<LawFirm> findByName(String name) {
-        try (var connection = ConnectionPool.getConnection();
+        try (var connection = connectionPool.getConnection();
              var preparedStatement = connection.prepareStatement(FIND_BY_NAME_SQL)) {
             LawFirm lawFirm = null;
 
@@ -108,7 +109,7 @@ public class LawFirmDaoImpl implements LawFirmDao {
             update(entity);
             return findById(id).get();
         }
-        try (var connection = ConnectionPool.getConnection();
+        try (var connection = connectionPool.getConnection();
              var preparedStatement = connection.prepareStatement(SAVE_SQL, Statement.RETURN_GENERATED_KEYS)) {
 
             preparedStatement.setString(1, entity.getName());
@@ -127,7 +128,7 @@ public class LawFirmDaoImpl implements LawFirmDao {
 
     @Override
     public boolean update(LawFirm entity) {
-        try (var connection = ConnectionPool.getConnection();
+        try (var connection = connectionPool.getConnection();
              var preparedStatement = connection.prepareStatement(UPDATE_SQL)) {
 
             preparedStatement.setString(1, entity.getName());
@@ -142,16 +143,12 @@ public class LawFirmDaoImpl implements LawFirmDao {
 
     @Override
     public boolean delete(Long id) {
-        try (var connection = ConnectionPool.getConnection();
+        try (var connection = connectionPool.getConnection();
              var preparedStatement = connection.prepareStatement(DELETE_SQL)) {
             preparedStatement.setLong(1, id);
             return preparedStatement.executeUpdate() > 0;
         } catch (SQLException e) {
             throw new DaoException(e);
         }
-    }
-
-    public static LawFirmDaoImpl getInstance() {
-        return INSTANCE;
     }
 }

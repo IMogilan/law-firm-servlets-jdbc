@@ -3,17 +3,16 @@ package com.mogilan.repository.mapper.impl;
 import com.mogilan.exception.DaoException;
 import com.mogilan.model.LawFirm;
 import com.mogilan.repository.LawyerDao;
-import com.mogilan.repository.impl.LawyerDaoImpl;
 import com.mogilan.repository.mapper.LawFirmResultSetMapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class LawFirmResultSetMapperImpl implements LawFirmResultSetMapper {
-    private static final LawFirmResultSetMapperImpl INSTANCE = new LawFirmResultSetMapperImpl();
-    private final LawyerDao lawyerDao = LawyerDaoImpl.getInstance();
+    private final LawyerDao lawyerDao;
 
-    private LawFirmResultSetMapperImpl() {
+    public LawFirmResultSetMapperImpl(LawyerDao lawyerDao) {
+        this.lawyerDao = lawyerDao;
     }
 
     @Override
@@ -30,9 +29,5 @@ public class LawFirmResultSetMapperImpl implements LawFirmResultSetMapper {
         } catch (SQLException e) {
             throw new DaoException(e);
         }
-    }
-
-    public static LawFirmResultSetMapperImpl getInstance() {
-        return INSTANCE;
     }
 }

@@ -1,6 +1,5 @@
 package com.mogilan.repository.mapper.impl;
 
-import com.mogilan.model.Task;
 import com.mogilan.repository.TaskDao;
 import com.mogilan.repository.impl.TaskDaoImpl;
 import com.mogilan.servlet.dto.JobTitle;
@@ -20,11 +19,12 @@ import java.util.List;
 import java.util.Optional;
 
 public class LawyerResultSetMapperImpl implements LawyerResultSetMapper {
-    private static final LawyerResultSetMapperImpl INSTANCE = new LawyerResultSetMapperImpl();
-    private final ContactDetailsDao contactDetailsDao = ContactDetailsDaoImpl.getInstance();
-    private final TaskDao taskDao = TaskDaoImpl.getInstance();
+    private final ContactDetailsDao contactDetailsDao;
+    private final TaskDao taskDao;
 
-    private LawyerResultSetMapperImpl() {
+    public LawyerResultSetMapperImpl(ContactDetailsDao contactDetailsDao, TaskDao taskDao) {
+        this.contactDetailsDao = contactDetailsDao;
+        this.taskDao = taskDao;
     }
 
     @Override
@@ -68,10 +68,6 @@ public class LawyerResultSetMapperImpl implements LawyerResultSetMapper {
             lawyers.add(lawyer);
         }
         return lawyers;
-    }
-
-    public static LawyerResultSetMapperImpl getInstance() {
-        return INSTANCE;
     }
 
     private Optional<ContactDetails> getContactDetails(ResultSet resultSet, Connection connection) throws SQLException {

@@ -2,13 +2,11 @@ package com.mogilan.service.impl;
 
 import com.mogilan.exception.EntityNotFoundException;
 import com.mogilan.repository.ClientDao;
-import com.mogilan.repository.impl.ClientDaoImpl;
 import com.mogilan.service.ClientService;
 import com.mogilan.service.TaskService;
 import com.mogilan.servlet.dto.ClientDto;
 import com.mogilan.servlet.dto.TaskDto;
 import com.mogilan.servlet.mapper.ClientMapper;
-import com.mogilan.servlet.mapper.impl.ClientMapperImpl;
 
 import java.util.HashSet;
 import java.util.List;
@@ -16,12 +14,14 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class ClientServiceImpl implements ClientService {
-    private static final ClientServiceImpl INSTANCE = new ClientServiceImpl();
-    private final ClientDao clientDao = ClientDaoImpl.getInstance();
-    private final ClientMapper clientMapper = ClientMapperImpl.getInstance();
-    private final static TaskService taskService = TaskServiceImpl.getInstance();
+    private final ClientDao clientDao;
+    private final ClientMapper clientMapper;
+    private final TaskService taskService;
 
-    private ClientServiceImpl() {
+    public ClientServiceImpl(ClientDao clientDao, ClientMapper clientMapper, TaskService taskService) {
+        this.clientDao = clientDao;
+        this.clientMapper = clientMapper;
+        this.taskService = taskService;
     }
 
     @Override
@@ -86,10 +86,6 @@ public class ClientServiceImpl implements ClientService {
     public boolean existsByName(String name) {
         Objects.requireNonNull(name);
         return clientDao.findByName(name).isPresent();
-    }
-
-    public static ClientServiceImpl getInstance() {
-        return INSTANCE;
     }
 
     private void createNewTasks(List<TaskDto> taskDtoList, ClientDto createdClientDto) {

@@ -5,6 +5,7 @@ import com.mogilan.servlet.dto.TaskStatus;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 
 public class Task {
     private Long id;
@@ -148,5 +149,18 @@ public class Task {
                 ", hoursSpentOnTask=" + hoursSpentOnTask +
                 ", client=" + client +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Task task = (Task) o;
+        return Double.compare(task.getHoursSpentOnTask(), getHoursSpentOnTask()) == 0 && Objects.equals(getId(), task.getId()) && Objects.equals(getTitle(), task.getTitle()) && Objects.equals(getDescription(), task.getDescription()) && getPriority() == task.getPriority() && getStatus() == task.getStatus() && Objects.equals(getReceiptDate(), task.getReceiptDate()) && Objects.equals(getDueDate(), task.getDueDate()) && Objects.equals(getCompletionDate(), task.getCompletionDate());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId(), getTitle(), getDescription(), getPriority(), getStatus(), getReceiptDate(), getDueDate(), getCompletionDate(), getHoursSpentOnTask());
     }
 }

@@ -1,19 +1,18 @@
 package com.mogilan.repository.impl;
 
+import com.mogilan.db.ConnectionPool;
 import com.mogilan.model.Lawyer;
-import com.mogilan.repository.LawyerDao;
 import com.mogilan.repository.TaskDao;
 import com.mogilan.model.Task;
 import com.mogilan.exception.DaoException;
 import com.mogilan.repository.mapper.impl.TaskResultSetMapperImpl;
-import com.mogilan.util.ConnectionPool;
+import com.mogilan.db.impl.ConnectionPoolImpl;
 
 import java.sql.*;
 import java.sql.Date;
 import java.util.*;
 
 public class TaskDaoImpl implements TaskDao {
-    private static final TaskDaoImpl INSTANCE = new TaskDaoImpl();
     private static final String FIND_ALL_SQL = """
              SELECT t.id,
                    t.title,
@@ -81,14 +80,17 @@ public class TaskDaoImpl implements TaskDao {
             WHERE id = ?
             """;
 
-    private final TaskResultSetMapperImpl resultSetMapper = TaskResultSetMapperImpl.getInstance();
+    private final ConnectionPool connectionPool;
+    private final TaskResultSetMapperImpl resultSetMapper;
 
-    private TaskDaoImpl() {
+    public TaskDaoImpl(ConnectionPool connectionPool, TaskResultSetMapperImpl resultSetMapper) {
+        this.connectionPool = connectionPool;
+        this.resultSetMapper = resultSetMapper;
     }
 
     @Override
     public List<Task> findAll() {
-        try (var connection = ConnectionPool.getConnection();
+        try (var connection = connectionPool.getConnection();
              var preparedStatement = connection.prepareStatement(FIND_ALL_SQL)) {
             var resultSet = preparedStatement.executeQuery();
 
@@ -100,7 +102,7 @@ public class TaskDaoImpl implements TaskDao {
 
     @Override
     public List<Task> findAllByClientId(Long clientId) {
-        try (var connection = ConnectionPool.getConnection()) {
+        try (var connection = connectionPool.getConnection()) {
 
             return findAllByClientId(clientId, connection);
         } catch (SQLException e) {
@@ -123,7 +125,7 @@ public class TaskDaoImpl implements TaskDao {
 
     @Override
     public List<Task> findAllByLawyerId(Long lawyerId) {
-        try (var connection = ConnectionPool.getConnection()) {
+        try (var connection = connectionPool.getConnection()) {
 
             return findAllByLawyerId(lawyerId, connection);
         } catch (SQLException e) {
@@ -146,7 +148,7 @@ public class TaskDaoImpl implements TaskDao {
 
     @Override
     public Optional<Task> findById(Long id) {
-        try (var connection = ConnectionPool.getConnection();
+        try (var connection = connectionPool.getConnection();
              var preparedStatement = connection.prepareStatement(FIND_BY_ID_SQL)) {
             Task task = null;
 
@@ -169,7 +171,7 @@ public class TaskDaoImpl implements TaskDao {
             update(entity);
             return findById(id).get();
         }
-        try (var connection = ConnectionPool.getConnection();
+        try (var connection = connectionPool.getConnection();
              var preparedStatement = connection.prepareStatement(SAVE_SQL, Statement.RETURN_GENERATED_KEYS)) {
 
             preparedStatement.setString(1, entity.getTitle());
@@ -198,7 +200,7 @@ public class TaskDaoImpl implements TaskDao {
 
     @Override
     public boolean update(Task entity) {
-        try (var connection = ConnectionPool.getConnection();
+        try (var connection = connectionPool.getConnection();
              var preparedStatement = connection.prepareStatement(UPDATE_SQL)) {
             preparedStatement.setString(1, entity.getTitle());
             preparedStatement.setString(2, entity.getDescription());
@@ -221,7 +223,7 @@ public class TaskDaoImpl implements TaskDao {
 
     @Override
     public boolean delete(Long id) {
-        try (var connection = ConnectionPool.getConnection();
+        try (var connection = connectionPool.getConnection();
              var preparedStatement = connection.prepareStatement(DELETE_SQL)) {
             preparedStatement.setLong(1, id);
             return preparedStatement.executeUpdate() > 0;
@@ -229,11 +231,6 @@ public class TaskDaoImpl implements TaskDao {
             throw new DaoException(e);
         }
     }
-
-    public static TaskDaoImpl getInstance() {
-        return INSTANCE;
-    }
-
 
     private void saveNewLinksToLawyers(List<Long> lawyerIds, Long taskId, Connection connection) throws SQLException {
         if (!lawyerIds.isEmpty()) {

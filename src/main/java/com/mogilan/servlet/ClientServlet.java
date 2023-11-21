@@ -3,12 +3,17 @@ package com.mogilan.servlet;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.mogilan.context.ApplicationContext;
+import com.mogilan.db.impl.ConnectionPoolImpl;
 import com.mogilan.exception.PathVariableException;
 import com.mogilan.exception.handler.ServletExceptionHandler;
 import com.mogilan.exception.handler.impl.ServletExceptionHandlerImpl;
+import com.mogilan.repository.impl.*;
+import com.mogilan.repository.mapper.impl.*;
 import com.mogilan.service.ClientService;
-import com.mogilan.service.impl.ClientServiceImpl;
+import com.mogilan.service.impl.*;
 import com.mogilan.servlet.dto.ClientDto;
+import com.mogilan.servlet.mapper.impl.*;
 import com.mogilan.util.ServletsUtil;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
@@ -22,15 +27,24 @@ import java.nio.charset.StandardCharsets;
 
 @WebServlet("/api/clients/*")
 public class ClientServlet extends HttpServlet {
-    private final ClientService clientService = ClientServiceImpl.getInstance();
-    private final ServletExceptionHandler exceptionHandler = ServletExceptionHandlerImpl.getInstance();
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private ClientService clientService;
+    private ServletExceptionHandler exceptionHandler;
+    private ObjectMapper objectMapper;
 
     @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
+        registerDependencies(config);
         objectMapper.registerModule(new JavaTimeModule());
         objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+    }
+
+    private void registerDependencies(ServletConfig config) {
+        var applicationContext = (ApplicationContext) config.getServletContext().getAttribute("applicationContext");
+        this.objectMapper = (ObjectMapper) applicationContext.getDependency("objectMapper");
+        this.exceptionHandler = (ServletExceptionHandler) applicationContext.getDependency("servletExceptionHandler");
+
+        this.clientService = (ClientService) applicationContext.getDependency("clientService");
     }
 
     @Override

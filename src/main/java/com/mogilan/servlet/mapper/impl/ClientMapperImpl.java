@@ -16,10 +16,10 @@ import java.util.List;
 
 public class ClientMapperImpl implements ClientMapper {
 
-    private static final ClientMapperImpl INSTANCE = new ClientMapperImpl();
-    private final ContactDetailsMapper contactDetailsMapper = ContactDetailsMapperImpl.getInstance();
+    private final ContactDetailsMapper contactDetailsMapper;
 
-    private ClientMapperImpl() {
+    public ClientMapperImpl(ContactDetailsMapper contactDetailsMapper) {
+        this.contactDetailsMapper = contactDetailsMapper;
     }
 
     @Override
@@ -64,10 +64,6 @@ public class ClientMapperImpl implements ClientMapper {
             return Collections.emptyList();
         }
         return clientDtoList.stream().map(this::toEntity).toList();
-    }
-
-    public static ClientMapperImpl getInstance() {
-        return INSTANCE;
     }
 
     private List<TaskDto> getTaskDtoList(Client client, ClientDto resultDtoCopy) {

@@ -2,25 +2,24 @@ package com.mogilan.service.impl;
 
 import com.mogilan.exception.EntityNotFoundException;
 import com.mogilan.repository.LawFirmDao;
-import com.mogilan.repository.impl.LawFirmDaoImpl;
 import com.mogilan.service.LawFirmService;
 import com.mogilan.service.LawyerService;
 import com.mogilan.servlet.dto.LawFirmDto;
 import com.mogilan.servlet.dto.LawyerDto;
 import com.mogilan.servlet.mapper.LawFirmMapper;
-import com.mogilan.servlet.mapper.impl.LawFirmMapperImpl;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class LawFirmServiceImpl implements LawFirmService {
+    private final LawFirmDao lawFirmDao;
+    private final LawFirmMapper lawFirmMapper;
+    private final LawyerService lawyerService;
 
-    private static final LawFirmServiceImpl INSTANCE = new LawFirmServiceImpl();
-    private final LawFirmDao lawFirmDao = LawFirmDaoImpl.getInstance();
-    private final LawFirmMapper lawFirmMapper = LawFirmMapperImpl.getInstance();
-    private final static LawyerService lawyerService = LawyerServiceImpl.getInstance();
-
-    private LawFirmServiceImpl() {
+    public LawFirmServiceImpl(LawFirmDao lawFirmDao, LawFirmMapper lawFirmMapper, LawyerService lawyerService) {
+        this.lawFirmDao = lawFirmDao;
+        this.lawFirmMapper = lawFirmMapper;
+        this.lawyerService = lawyerService;
     }
 
     @Override
@@ -79,10 +78,6 @@ public class LawFirmServiceImpl implements LawFirmService {
         Objects.requireNonNull(id);
 
         return lawFirmDao.findById(id).isEmpty();
-    }
-
-    public static LawFirmServiceImpl getInstance() {
-        return INSTANCE;
     }
 
     private void createNewLawyers(List<LawyerDto> newLawyers, LawFirmDto lawFirmDto) {

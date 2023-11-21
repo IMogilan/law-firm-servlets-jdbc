@@ -1,10 +1,6 @@
 package com.mogilan.repository.mapper.impl;
 
 import com.mogilan.model.*;
-import com.mogilan.repository.ContactDetailsDao;
-import com.mogilan.repository.LawyerDao;
-import com.mogilan.repository.impl.ContactDetailsDaoImpl;
-import com.mogilan.repository.impl.LawyerDaoImpl;
 import com.mogilan.servlet.dto.JobTitle;
 import com.mogilan.servlet.dto.TaskPriority;
 import com.mogilan.servlet.dto.TaskStatus;
@@ -16,13 +12,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 public class TaskResultSetMapperImpl implements TaskResultSetMapper {
 
-    private static final TaskResultSetMapperImpl INSTANCE = new TaskResultSetMapperImpl();
-
-    private TaskResultSetMapperImpl() {
+    public TaskResultSetMapperImpl() {
     }
 
     @Override
@@ -127,9 +120,5 @@ public class TaskResultSetMapperImpl implements TaskResultSetMapper {
                         List.of(currentTask)
                 );
         return lawyer;
-    }
-
-    public static TaskResultSetMapperImpl getInstance() {
-        return INSTANCE;
     }
 }

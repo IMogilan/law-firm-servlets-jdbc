@@ -16,11 +16,10 @@ import java.util.Collections;
 import java.util.List;
 
 public class LawyerMapperImpl implements LawyerMapper {
+    private final ContactDetailsMapper contactDetailsMapper;
 
-    private static final LawyerMapperImpl INSTANCE = new LawyerMapperImpl();
-    private final ContactDetailsMapper contactDetailsMapper = ContactDetailsMapperImpl.getInstance();
-
-    private LawyerMapperImpl() {
+    public LawyerMapperImpl(ContactDetailsMapper contactDetailsMapper) {
+        this.contactDetailsMapper = contactDetailsMapper;
     }
 
     @Override
@@ -73,10 +72,6 @@ public class LawyerMapperImpl implements LawyerMapper {
             return Collections.emptyList();
         }
         return lawyerDtoList.stream().map(this::toEntity).toList();
-    }
-
-    public static LawyerMapperImpl getInstance() {
-        return INSTANCE;
     }
 
     private LawFirmDto getLawFirmDto(Lawyer lawyer, LawyerDto resultDto) {

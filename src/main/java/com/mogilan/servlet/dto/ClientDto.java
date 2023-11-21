@@ -3,6 +3,7 @@ package com.mogilan.servlet.dto;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import java.util.List;
+import java.util.Objects;
 
 public class ClientDto {
     private Long id;
@@ -66,5 +67,18 @@ public class ClientDto {
                 ", name='" + name + '\'' +
                 ", description='" + description + '\'' +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ClientDto clientDto = (ClientDto) o;
+        return Objects.equals(getId(), clientDto.getId()) && Objects.equals(getName(), clientDto.getName()) && Objects.equals(getDescription(), clientDto.getDescription());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId(), getName(), getDescription());
     }
 }

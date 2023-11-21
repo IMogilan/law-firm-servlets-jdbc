@@ -3,6 +3,7 @@ package com.mogilan.servlet.dto;
 import com.fasterxml.jackson.annotation.*;
 
 import java.util.List;
+import java.util.Objects;
 
 @JsonIdentityInfo(
         generator = ObjectIdGenerators.PropertyGenerator.class,
@@ -118,5 +119,18 @@ public class LawyerDto {
                 ", hourlyRate=" + hourlyRate +
                 ", contacts=" + contacts +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        LawyerDto lawyerDto = (LawyerDto) o;
+        return Double.compare(lawyerDto.getHourlyRate(), getHourlyRate()) == 0 && Objects.equals(getId(), lawyerDto.getId()) && Objects.equals(getFirstName(), lawyerDto.getFirstName()) && Objects.equals(getLastName(), lawyerDto.getLastName()) && getJobTitle() == lawyerDto.getJobTitle();
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId(), getFirstName(), getLastName(), getJobTitle(), getHourlyRate());
     }
 }

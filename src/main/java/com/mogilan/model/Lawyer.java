@@ -3,6 +3,7 @@ package com.mogilan.model;
 import com.mogilan.servlet.dto.JobTitle;
 
 import java.util.List;
+import java.util.Objects;
 
 public class Lawyer {
     private Long id;
@@ -125,5 +126,18 @@ public class Lawyer {
                 ", lawFirm=" + lawFirm +
                 ", contacts=" + contacts +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Lawyer lawyer = (Lawyer) o;
+        return Double.compare(lawyer.getHourlyRate(), getHourlyRate()) == 0 && Objects.equals(getId(), lawyer.getId()) && Objects.equals(getFirstName(), lawyer.getFirstName()) && Objects.equals(getLastName(), lawyer.getLastName()) && getJobTitle() == lawyer.getJobTitle();
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId(), getFirstName(), getLastName(), getJobTitle(), getHourlyRate());
     }
 }

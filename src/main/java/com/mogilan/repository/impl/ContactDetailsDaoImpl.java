@@ -1,11 +1,10 @@
 package com.mogilan.repository.impl;
 
+import com.mogilan.db.ConnectionPool;
 import com.mogilan.repository.ContactDetailsDao;
 import com.mogilan.model.*;
 import com.mogilan.exception.DaoException;
 import com.mogilan.repository.mapper.ContactDetailsResultSetMapper;
-import com.mogilan.repository.mapper.impl.ContactDetailsResultSetMapperImpl;
-import com.mogilan.util.ConnectionPool;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -13,7 +12,6 @@ import java.util.List;
 import java.util.Optional;
 
 public class ContactDetailsDaoImpl implements ContactDetailsDao {
-    private static final ContactDetailsDaoImpl INSTANCE = new ContactDetailsDaoImpl();
     private static final String FIND_ALL_SQL = """
             SELECT  id,
                     address,
@@ -44,14 +42,17 @@ public class ContactDetailsDaoImpl implements ContactDetailsDao {
             FROM contact_details
             WHERE id = ?
             """;
-    private final ContactDetailsResultSetMapper resultSetMapper = ContactDetailsResultSetMapperImpl.getInstance();
+    private final ConnectionPool connectionPool;
+    private final ContactDetailsResultSetMapper resultSetMapper;
 
-    private ContactDetailsDaoImpl() {
+    public ContactDetailsDaoImpl(ConnectionPool connectionPool, ContactDetailsResultSetMapper resultSetMapper) {
+        this.connectionPool = connectionPool;
+        this.resultSetMapper = resultSetMapper;
     }
 
     @Override
     public List<ContactDetails> findAll() {
-        try (var connection = ConnectionPool.getConnection();
+        try (var connection = connectionPool.getConnection();
              var preparedStatement = connection.prepareStatement(FIND_ALL_SQL)) {
             List<ContactDetails> contactDetailsList = new ArrayList<>();
 
@@ -68,7 +69,7 @@ public class ContactDetailsDaoImpl implements ContactDetailsDao {
 
     @Override
     public Optional<ContactDetails> findById(Long id) {
-        try (var connection = ConnectionPool.getConnection()) {
+        try (var connection = connectionPool.getConnection()) {
             return findById(id, connection);
         } catch (SQLException e) {
             throw new DaoException(e);
@@ -99,7 +100,7 @@ public class ContactDetailsDaoImpl implements ContactDetailsDao {
             update(entity);
             return findById(id).get();
         }
-        try (var connection = ConnectionPool.getConnection();
+        try (var connection = connectionPool.getConnection();
              var preparedStatement = connection.prepareStatement(SAVE_SQL, Statement.RETURN_GENERATED_KEYS)) {
             preparedStatement.setLong(1, entity.getId());
             preparedStatement.setString(2, entity.getAddress());
@@ -121,7 +122,7 @@ public class ContactDetailsDaoImpl implements ContactDetailsDao {
 
     @Override
     public boolean update(ContactDetails entity) {
-        try (var connection = ConnectionPool.getConnection();
+        try (var connection = connectionPool.getConnection();
              var preparedStatement = connection.prepareStatement(UPDATE_SQL)) {
 
             preparedStatement.setString(1, entity.getAddress());
@@ -139,16 +140,12 @@ public class ContactDetailsDaoImpl implements ContactDetailsDao {
 
     @Override
     public boolean delete(Long id) {
-        try (var connection = ConnectionPool.getConnection();
+        try (var connection = connectionPool.getConnection();
              var preparedStatement = connection.prepareStatement(DELETE_SQL)) {
             preparedStatement.setLong(1, id);
             return preparedStatement.executeUpdate() > 0;
         } catch (SQLException e) {
             throw new DaoException(e);
         }
-    }
-
-    public static ContactDetailsDaoImpl getInstance() {
-        return INSTANCE;
     }
 }

@@ -1,7 +1,7 @@
 //package com.mogilan.repository.impl;
 //
 //import com.mogilan.model.ContactDetails;
-//import com.mogilan.util.ConnectionPool;
+//import com.mogilan.db.impl.ConnectionPoolImpl;
 //import com.mogilan.util.PropertiesUtil;
 //import org.assertj.core.api.Assertions;
 //import org.junit.jupiter.api.*;
@@ -69,9 +69,9 @@
 //    }
 //
 //    private static void setToConnectionPoolPropertiesFromPostgresContainer() {
-//        PropertiesUtil.set(ConnectionPool.URL_KEY, postgres.getJdbcUrl());
-//        PropertiesUtil.set(ConnectionPool.USER_KEY, postgres.getUsername());
-//        PropertiesUtil.set(ConnectionPool.PASSWORD_KEY, postgres.getPassword());
+//        PropertiesUtil.set(ConnectionPoolImpl.URL_KEY, postgres.getJdbcUrl());
+//        PropertiesUtil.set(ConnectionPoolImpl.USER_KEY, postgres.getUsername());
+//        PropertiesUtil.set(ConnectionPoolImpl.PASSWORD_KEY, postgres.getPassword());
 //    }
 //
 //    private static void insertTestData() {
@@ -83,7 +83,7 @@
 //    }
 //
 //    private static void populateContainer(PostgreSQLContainer<?> container) {
-//        try (Connection connection = ConnectionPool.getConnection();
+//        try (Connection connection = ConnectionPoolImpl.getConnection();
 //             Statement statement = connection.createStatement()) {
 //            var scriptStream = ContactDetailsDaoImplTest.class.getClassLoader().getResourceAsStream("SQL-script.sql");
 //            String scriptContent = new String(scriptStream.readAllBytes(), StandardCharsets.UTF_8);
@@ -94,7 +94,7 @@
 //    }
 //
 //    private static void dropTablesInContainer(PostgreSQLContainer<?> container) {
-//        try (Connection connection = ConnectionPool.getConnection();
+//        try (Connection connection = ConnectionPoolImpl.getConnection();
 //             Statement statement = connection.createStatement()) {
 //            var scriptStream = ContactDetailsDaoImplTest.class.getClassLoader().getResourceAsStream("drop-script.sql");
 //            String scriptContent = new String(scriptStream.readAllBytes(), StandardCharsets.UTF_8);

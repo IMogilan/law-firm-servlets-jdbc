@@ -1,19 +1,16 @@
 package com.mogilan.repository.impl;
 
+import com.mogilan.db.ConnectionPool;
 import com.mogilan.model.Task;
 import com.mogilan.repository.LawyerDao;
 import com.mogilan.model.Lawyer;
 import com.mogilan.exception.DaoException;
 import com.mogilan.repository.mapper.LawyerResultSetMapper;
-import com.mogilan.repository.mapper.impl.LawyerResultSetMapperImpl;
-import com.mogilan.util.ConnectionPool;
 
 import java.sql.*;
 import java.util.*;
 
 public class LawyerDaoImpl implements LawyerDao {
-
-    private static final LawyerDaoImpl INSTANCE = new LawyerDaoImpl();
     private static final String FIND_ALL_SQL = """
             SELECT  lawyers.id,
                     first_name,
@@ -65,14 +62,17 @@ public class LawyerDaoImpl implements LawyerDao {
             FROM lawyers
             WHERE id = ?
             """;
-    private final LawyerResultSetMapper resultSetMapper = LawyerResultSetMapperImpl.getInstance();
+    private final ConnectionPool connectionPool;
+    private final LawyerResultSetMapper resultSetMapper;
 
-    private LawyerDaoImpl() {
+    public LawyerDaoImpl(ConnectionPool connectionPool, LawyerResultSetMapper resultSetMapper) {
+        this.connectionPool = connectionPool;
+        this.resultSetMapper = resultSetMapper;
     }
 
     @Override
     public List<Lawyer> findAll() {
-        try (var connection = ConnectionPool.getConnection();
+        try (var connection = connectionPool.getConnection();
              var preparedStatement = connection.prepareStatement(FIND_ALL_SQL)) {
             var resultSet = preparedStatement.executeQuery();
 
@@ -84,7 +84,7 @@ public class LawyerDaoImpl implements LawyerDao {
 
     @Override
     public List<Lawyer> findAllByLawFirmId(Long lawFirmId) {
-        try (var connection = ConnectionPool.getConnection()) {
+        try (var connection = connectionPool.getConnection()) {
             return findAllByLawFirmId(lawFirmId, connection);
         } catch (SQLException e) {
             throw new DaoException(e);
@@ -105,7 +105,7 @@ public class LawyerDaoImpl implements LawyerDao {
 
     @Override
     public List<Lawyer> findAllByTaskId(Long taskId) {
-        try (var connection = ConnectionPool.getConnection()) {
+        try (var connection = connectionPool.getConnection()) {
             return findAllByTaskId(taskId, connection);
         } catch (SQLException e) {
             throw new DaoException(e);
@@ -126,7 +126,7 @@ public class LawyerDaoImpl implements LawyerDao {
 
     @Override
     public Optional<Lawyer> findById(Long id) {
-        try (var connection = ConnectionPool.getConnection();
+        try (var connection = connectionPool.getConnection();
              var preparedStatement = connection.prepareStatement(FIND_BY_ID_SQL)) {
             Lawyer lawyer = null;
 
@@ -149,7 +149,7 @@ public class LawyerDaoImpl implements LawyerDao {
             update(entity);
             return findById(id).get();
         }
-        try (var connection = ConnectionPool.getConnection();
+        try (var connection = connectionPool.getConnection();
              var preparedStatement = connection.prepareStatement(SAVE_SQL, Statement.RETURN_GENERATED_KEYS)) {
 
             preparedStatement.setString(1, entity.getFirstName());
@@ -175,7 +175,7 @@ public class LawyerDaoImpl implements LawyerDao {
 
     @Override
     public boolean update(Lawyer entity) {
-        try (var connection = ConnectionPool.getConnection();
+        try (var connection = connectionPool.getConnection();
              var preparedStatement = connection.prepareStatement(UPDATE_SQL)) {
             preparedStatement.setString(1, entity.getFirstName());
             preparedStatement.setString(2, entity.getLastName());
@@ -194,17 +194,13 @@ public class LawyerDaoImpl implements LawyerDao {
 
     @Override
     public boolean delete(Long id) {
-        try (var connection = ConnectionPool.getConnection();
+        try (var connection = connectionPool.getConnection();
              var preparedStatement = connection.prepareStatement(DELETE_SQL)) {
             preparedStatement.setLong(1, id);
             return preparedStatement.executeUpdate() > 0;
         } catch (SQLException e) {
             throw new DaoException(e);
         }
-    }
-
-    public static LawyerDaoImpl getInstance() {
-        return INSTANCE;
     }
 
     private void saveNewLinksToTasks(List<Long> taskIds, Long lawyerId, Connection connection) throws SQLException {

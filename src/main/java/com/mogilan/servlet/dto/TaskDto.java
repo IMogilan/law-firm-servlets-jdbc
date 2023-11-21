@@ -146,11 +146,11 @@ public class TaskDto {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         TaskDto taskDto = (TaskDto) o;
-        return Double.compare(taskDto.getHoursSpentOnTask(), getHoursSpentOnTask()) == 0 && Objects.equals(getId(), taskDto.getId()) && Objects.equals(getTitle(), taskDto.getTitle()) && Objects.equals(getDescription(), taskDto.getDescription()) && getPriority() == taskDto.getPriority() && getStatus() == taskDto.getStatus() && Objects.equals(getReceiptDate(), taskDto.getReceiptDate()) && Objects.equals(getDueDate(), taskDto.getDueDate()) && Objects.equals(getCompletionDate(), taskDto.getCompletionDate()) && Objects.equals(getClient(), taskDto.getClient()) && Objects.equals(getLawyers(), taskDto.getLawyers());
+        return Double.compare(taskDto.getHoursSpentOnTask(), getHoursSpentOnTask()) == 0 && Objects.equals(getId(), taskDto.getId()) && Objects.equals(getTitle(), taskDto.getTitle()) && Objects.equals(getDescription(), taskDto.getDescription()) && getPriority() == taskDto.getPriority() && getStatus() == taskDto.getStatus() && Objects.equals(getReceiptDate(), taskDto.getReceiptDate()) && Objects.equals(getDueDate(), taskDto.getDueDate()) && Objects.equals(getCompletionDate(), taskDto.getCompletionDate());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getId(), getTitle(), getDescription(), getPriority(), getStatus(), getReceiptDate(), getDueDate(), getCompletionDate(), getHoursSpentOnTask(), getClient(), getLawyers());
+        return Objects.hash(getId(), getTitle(), getDescription(), getPriority(), getStatus(), getReceiptDate(), getDueDate(), getCompletionDate(), getHoursSpentOnTask());
     }
 }

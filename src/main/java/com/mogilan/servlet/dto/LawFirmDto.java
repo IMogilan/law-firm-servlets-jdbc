@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 
 public class LawFirmDto {
     private Long id;
@@ -67,5 +68,18 @@ public class LawFirmDto {
                 ", name='" + name + '\'' +
                 ", companyStartDay=" + companyStartDay +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        LawFirmDto that = (LawFirmDto) o;
+        return Objects.equals(getId(), that.getId()) && Objects.equals(getName(), that.getName()) && Objects.equals(getCompanyStartDay(), that.getCompanyStartDay());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId(), getName(), getCompanyStartDay());
     }
 }

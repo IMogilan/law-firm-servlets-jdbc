@@ -3,9 +3,11 @@ package com.mogilan.servlet;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.mogilan.context.ApplicationContext;
 import com.mogilan.exception.PathVariableException;
 import com.mogilan.exception.handler.ServletExceptionHandler;
 import com.mogilan.exception.handler.impl.ServletExceptionHandlerImpl;
+import com.mogilan.service.ContactDetailsService;
 import com.mogilan.service.LawFirmService;
 import com.mogilan.service.impl.LawFirmServiceImpl;
 import com.mogilan.servlet.dto.LawFirmDto;
@@ -22,15 +24,23 @@ import java.nio.charset.StandardCharsets;
 
 @WebServlet("/api/law-firms/*")
 public class LawFirmServlet extends HttpServlet {
-    private final LawFirmService lawFirmService = LawFirmServiceImpl.getInstance();
-    private final ServletExceptionHandler exceptionHandler = ServletExceptionHandlerImpl.getInstance();
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private LawFirmService lawFirmService;
+    private ServletExceptionHandler exceptionHandler;
+    private ObjectMapper objectMapper;
 
     @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
+        registerDependencies(config);
         objectMapper.registerModule(new JavaTimeModule());
         objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+    }
+
+    private void registerDependencies(ServletConfig config) {
+        var applicationContext = (ApplicationContext) config.getServletContext().getAttribute("applicationContext");
+        this.objectMapper = (ObjectMapper) applicationContext.getDependency("objectMapper");
+        this.exceptionHandler = (ServletExceptionHandler) applicationContext.getDependency("servletExceptionHandler");
+        this.lawFirmService = (LawFirmService) applicationContext.getDependency("lawFirmService");
     }
 
     @Override

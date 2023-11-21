@@ -10,10 +10,10 @@ import java.util.List;
 
 public class LawFirmMapperImpl implements LawFirmMapper {
 
-    private static final LawFirmMapperImpl INSTANCE = new LawFirmMapperImpl();
-    private final LawyerMapper lawyerMapper = LawyerMapperImpl.getInstance();
+    private final LawyerMapper lawyerMapper;
 
-    private LawFirmMapperImpl() {
+    public LawFirmMapperImpl(LawyerMapper lawyerMapper) {
+        this.lawyerMapper = lawyerMapper;
     }
 
     @Override
@@ -47,9 +47,5 @@ public class LawFirmMapperImpl implements LawFirmMapper {
             return Collections.emptyList();
         }
         return lawFirmDtoList.stream().map(this::toEntity).toList();
-    }
-
-    public static LawFirmMapperImpl getInstance() {
-        return INSTANCE;
     }
 }

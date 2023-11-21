@@ -1,13 +1,16 @@
 package com.mogilan.servlet;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.mogilan.context.ApplicationContext;
 import com.mogilan.exception.PathVariableException;
 import com.mogilan.exception.handler.ServletExceptionHandler;
-import com.mogilan.exception.handler.impl.ServletExceptionHandlerImpl;
 import com.mogilan.service.ContactDetailsService;
-import com.mogilan.service.impl.ContactDetailsServiceImpl;
 import com.mogilan.servlet.dto.ContactDetailsDto;
 import com.mogilan.util.ServletsUtil;
+import jakarta.servlet.ServletConfig;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -19,9 +22,24 @@ import java.nio.charset.StandardCharsets;
 @WebServlet("/api/contact-details/*")
 public class ContactDetailsServlet extends HttpServlet {
 
-    private final ContactDetailsService contactDetailsService = ContactDetailsServiceImpl.getInstance();
-    private final ServletExceptionHandler exceptionHandler = ServletExceptionHandlerImpl.getInstance();
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private ContactDetailsService contactDetailsService;
+    private ServletExceptionHandler exceptionHandler;
+    private ObjectMapper objectMapper;
+
+    @Override
+    public void init(ServletConfig config) throws ServletException {
+        super.init(config);
+        registerDependencies(config);
+        objectMapper.registerModule(new JavaTimeModule());
+        objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+    }
+
+    private void registerDependencies(ServletConfig config) {
+        var applicationContext = (ApplicationContext) config.getServletContext().getAttribute("applicationContext");
+        this.objectMapper = (ObjectMapper) applicationContext.getDependency("objectMapper");
+        this.exceptionHandler = (ServletExceptionHandler) applicationContext.getDependency("servletExceptionHandler");
+        this.contactDetailsService = (ContactDetailsService) applicationContext.getDependency("contactDetailsService");
+    }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) {

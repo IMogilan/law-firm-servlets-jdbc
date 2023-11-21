@@ -13,10 +13,10 @@ import java.nio.charset.StandardCharsets;
 
 public final class ServletExceptionHandlerImpl implements ServletExceptionHandler {
 
-    private static final ServletExceptionHandler INSTANCE = new ServletExceptionHandlerImpl();
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper;
 
-    private ServletExceptionHandlerImpl() {
+    public ServletExceptionHandlerImpl(ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper;
     }
 
     @Override
@@ -31,10 +31,6 @@ public final class ServletExceptionHandlerImpl implements ServletExceptionHandle
         } catch (IOException ex) {
             ex.printStackTrace();
         }
-    }
-
-    public static ServletExceptionHandler getInstance() {
-        return INSTANCE;
     }
 
     public int getErrorStatusCode(Exception e) {

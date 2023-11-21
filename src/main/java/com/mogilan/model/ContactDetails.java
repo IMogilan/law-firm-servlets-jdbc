@@ -1,5 +1,7 @@
 package com.mogilan.model;
 
+import java.util.Objects;
+
 public class ContactDetails {
     private Long id;
     private String address;
@@ -86,5 +88,18 @@ public class ContactDetails {
                 ", faxNumber='" + faxNumber + '\'' +
                 ", email='" + email + '\'' +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ContactDetails that = (ContactDetails) o;
+        return Objects.equals(getId(), that.getId()) && Objects.equals(getAddress(), that.getAddress()) && Objects.equals(getTelNumber(), that.getTelNumber()) && Objects.equals(getMobNumber(), that.getMobNumber()) && Objects.equals(getFaxNumber(), that.getFaxNumber()) && Objects.equals(getEmail(), that.getEmail());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId(), getAddress(), getTelNumber(), getMobNumber(), getFaxNumber(), getEmail());
     }
 }

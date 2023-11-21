@@ -1,6 +1,7 @@
 package com.mogilan.model;
 
 import java.util.List;
+import java.util.Objects;
 
 public class Client {
     private Long id;
@@ -68,5 +69,18 @@ public class Client {
                 ", name='" + name + '\'' +
                 ", description='" + description + '\'' +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Client client = (Client) o;
+        return Objects.equals(getId(), client.getId()) && Objects.equals(getName(), client.getName()) && Objects.equals(getDescription(), client.getDescription());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId(), getName(), getDescription());
     }
 }

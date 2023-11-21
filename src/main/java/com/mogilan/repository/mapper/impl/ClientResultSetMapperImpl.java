@@ -9,11 +9,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class ClientResultSetMapperImpl implements ClientResultSetMapper {
+    private final TaskDaoImpl taskDao;
 
-    private static final ClientResultSetMapperImpl INSTANCE = new ClientResultSetMapperImpl();
-    private final TaskDaoImpl taskDao = TaskDaoImpl.getInstance();
-
-    private ClientResultSetMapperImpl() {
+    public ClientResultSetMapperImpl(TaskDaoImpl taskDao) {
+        this.taskDao = taskDao;
     }
 
     @Override
@@ -30,9 +29,5 @@ public class ClientResultSetMapperImpl implements ClientResultSetMapper {
         } catch (SQLException e) {
             throw new DaoException(e);
         }
-    }
-
-    public static ClientResultSetMapperImpl getInstance() {
-        return INSTANCE;
     }
 }

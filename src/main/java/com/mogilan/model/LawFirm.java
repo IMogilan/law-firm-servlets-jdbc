@@ -2,6 +2,7 @@ package com.mogilan.model;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 
 public class LawFirm {
     private Long id;
@@ -69,5 +70,18 @@ public class LawFirm {
                 ", name='" + name + '\'' +
                 ", companyStartDay=" + companyStartDay +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        LawFirm lawFirm = (LawFirm) o;
+        return Objects.equals(getId(), lawFirm.getId()) && Objects.equals(getName(), lawFirm.getName()) && Objects.equals(getCompanyStartDay(), lawFirm.getCompanyStartDay());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId(), getName(), getCompanyStartDay());
     }
 }

@@ -2,30 +2,29 @@ package com.mogilan.service.impl;
 
 import com.mogilan.exception.EntityNotFoundException;
 import com.mogilan.repository.TaskDao;
-import com.mogilan.repository.impl.TaskDaoImpl;
-import com.mogilan.service.ClientService;
 import com.mogilan.service.LawyerService;
 import com.mogilan.service.TaskService;
 import com.mogilan.servlet.dto.LawyerDto;
 import com.mogilan.servlet.dto.TaskDto;
 import com.mogilan.servlet.mapper.TaskMapper;
-import com.mogilan.servlet.mapper.impl.TaskMapperImpl;
 
 import java.util.List;
 import java.util.Objects;
 
 public class TaskServiceImpl implements TaskService {
-    private static final TaskServiceImpl INSTANCE = new TaskServiceImpl();
-    private final TaskDao taskDao = TaskDaoImpl.getInstance();
-    private final TaskMapper taskMapper = TaskMapperImpl.getInstance();
-    private final static ClientService clientService = ClientServiceImpl.getInstance();
-    private final LawyerService lawyerService = LawyerServiceImpl.getInstance();
+    private final TaskDao taskDao;
+    private final TaskMapper taskMapper;
+    private final LawyerService lawyerService;
+
+    public TaskServiceImpl(TaskDao taskDao, TaskMapper taskMapper, LawyerService lawyerService) {
+        this.taskDao = taskDao;
+        this.taskMapper = taskMapper;
+        this.lawyerService = lawyerService;
+    }
 
     @Override
     public TaskDto create(TaskDto newTaskDto) {
         Objects.requireNonNull(newTaskDto);
-
-        createUnsavedClient(newTaskDto);
 
         var task = taskMapper.toEntity(newTaskDto);
         var savedTask = taskDao.save(task);
@@ -82,8 +81,6 @@ public class TaskServiceImpl implements TaskService {
             throw new EntityNotFoundException("Task with id = " + id + " not found");
         }
 
-        createUnsavedClient(taskDto);
-
         var task = taskMapper.toEntity(taskDto);
         task.setId(id);
         taskDao.update(task);
@@ -96,18 +93,5 @@ public class TaskServiceImpl implements TaskService {
             throw new EntityNotFoundException("Task with id = " + id + " not found");
         }
         taskDao.delete(id);
-    }
-
-    public static TaskServiceImpl getInstance() {
-        return INSTANCE;
-    }
-
-    private void createUnsavedClient(TaskDto newTaskDto) {
-        var client = newTaskDto.getClient();
-        if ((client != null) && (client.getName() != null) && (!clientService.existsByName(client.getName()) &&
-                ((client.getId() == null) || (!clientService.existsById(client.getId()))))) {
-            var createdClientDto = clientService.create(client);
-            newTaskDto.setClient(createdClientDto);
-        }
     }
 }

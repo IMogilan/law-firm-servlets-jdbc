@@ -3,6 +3,7 @@ package com.mogilan.servlet;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.mogilan.context.ApplicationContext;
 import com.mogilan.exception.PathVariableException;
 import com.mogilan.exception.handler.ServletExceptionHandler;
 import com.mogilan.exception.handler.impl.ServletExceptionHandlerImpl;
@@ -28,18 +29,27 @@ import java.util.regex.Pattern;
 
 @WebServlet("/api/tasks/*")
 public class TaskServlet extends HttpServlet {
-    private final TaskService taskService = TaskServiceImpl.getInstance();
-    private final LawyerService lawyerService = LawyerServiceImpl.getInstance();
-    private final ServletExceptionHandler exceptionHandler = ServletExceptionHandlerImpl.getInstance();
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private TaskService taskService;
+    private LawyerService lawyerService;
+    private ServletExceptionHandler exceptionHandler;
+    private ObjectMapper objectMapper;
     private static final String REGEX_FOR_SUB_RESOURCES_1 = "\\/(\\d+)\\/lawyers\\/";
     private static final String REGEX_FOR_SUB_RESOURCES_2 = "\\/(\\d+)\\/lawyers\\/(\\d*)";
 
     @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
+        registerDependencies(config);
         objectMapper.registerModule(new JavaTimeModule());
         objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+    }
+
+    private void registerDependencies(ServletConfig config) {
+        var applicationContext = (ApplicationContext) config.getServletContext().getAttribute("applicationContext");
+        this.objectMapper = (ObjectMapper) applicationContext.getDependency("objectMapper");
+        this.exceptionHandler = (ServletExceptionHandler) applicationContext.getDependency("servletExceptionHandler");
+        this.lawyerService = (LawyerService) applicationContext.getDependency("lawyerService");
+        this.taskService = (TaskService) applicationContext.getDependency("taskService");
     }
 
     @Override

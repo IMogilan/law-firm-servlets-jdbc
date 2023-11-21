@@ -9,9 +9,7 @@ import java.sql.SQLException;
 
 public class ContactDetailsResultSetMapperImpl implements ContactDetailsResultSetMapper {
 
-    private static final ContactDetailsResultSetMapperImpl INSTANCE = new ContactDetailsResultSetMapperImpl();
-
-    private ContactDetailsResultSetMapperImpl() {
+    public ContactDetailsResultSetMapperImpl() {
     }
 
     @Override
@@ -28,9 +26,4 @@ public class ContactDetailsResultSetMapperImpl implements ContactDetailsResultSe
             throw new DaoException(e);
         }
     }
-
-    public static ContactDetailsResultSetMapperImpl getInstance() {
-        return INSTANCE;
-    }
-
 }

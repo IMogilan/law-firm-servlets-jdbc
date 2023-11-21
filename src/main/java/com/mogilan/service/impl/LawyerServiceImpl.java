@@ -2,33 +2,29 @@ package com.mogilan.service.impl;
 
 import com.mogilan.exception.EntityNotFoundException;
 import com.mogilan.repository.LawyerDao;
-import com.mogilan.repository.impl.LawyerDaoImpl;
 import com.mogilan.service.ContactDetailsService;
-import com.mogilan.service.LawFirmService;
 import com.mogilan.service.LawyerService;
 import com.mogilan.servlet.dto.ContactDetailsDto;
 import com.mogilan.servlet.dto.LawyerDto;
 import com.mogilan.servlet.mapper.LawyerMapper;
-import com.mogilan.servlet.mapper.impl.LawyerMapperImpl;
 
 import java.util.List;
 import java.util.Objects;
 
 public class LawyerServiceImpl implements LawyerService {
-    private static final LawyerServiceImpl INSTANCE = new LawyerServiceImpl();
-    private final LawyerDao lawyerDao = LawyerDaoImpl.getInstance();
-    private final ContactDetailsService contactDetailsService = ContactDetailsServiceImpl.getInstance();
-    private final LawyerMapper lawyerMapper = LawyerMapperImpl.getInstance();
-    private final static LawFirmService lawFirmService = LawFirmServiceImpl.getInstance();
+    private final LawyerDao lawyerDao;
+    private final ContactDetailsService contactDetailsService;
+    private final LawyerMapper lawyerMapper;
 
-    private LawyerServiceImpl() {
+    public LawyerServiceImpl(LawyerDao lawyerDao, ContactDetailsService contactDetailsService, LawyerMapper lawyerMapper) {
+        this.lawyerDao = lawyerDao;
+        this.contactDetailsService = contactDetailsService;
+        this.lawyerMapper = lawyerMapper;
     }
 
     @Override
     public LawyerDto create(LawyerDto lawyerDto) {
         Objects.requireNonNull(lawyerDto);
-
-        createUnsavedLawFirm(lawyerDto);
 
         var lawyer = lawyerMapper.toEntity(lawyerDto);
         var saveLawyer = lawyerDao.save(lawyer);
@@ -77,8 +73,6 @@ public class LawyerServiceImpl implements LawyerService {
             throw new EntityNotFoundException("Lawyer with id = " + id + " not found");
         }
 
-        createUnsavedLawFirm(lawyerDto);
-
         var lawyer = lawyerMapper.toEntity(lawyerDto);
         lawyer.setId(id);
         lawyerDao.update(lawyer);
@@ -93,18 +87,6 @@ public class LawyerServiceImpl implements LawyerService {
             throw new EntityNotFoundException("Lawyer with id = " + id + " not found");
         }
         lawyerDao.delete(id);
-    }
-
-    public static LawyerServiceImpl getInstance() {
-        return INSTANCE;
-    }
-
-    private void createUnsavedLawFirm(LawyerDto lawyerDto) {
-        var lawFirm = lawyerDto.getLawFirm();
-        if ((lawFirm != null) && ((lawFirm.getId() == null) || (!lawFirmService.existsById(lawFirm.getId())))) {
-            var createdLawFirmDto = lawFirmService.create(lawFirm);
-            lawyerDto.setLawFirm(createdLawFirmDto);
-        }
     }
 
     private ContactDetailsDto getCreatedContactDetailsDto(LawyerDto lawyerDto, Long lawyerDtoId) {
