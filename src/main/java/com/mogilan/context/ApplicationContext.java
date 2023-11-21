@@ -9,7 +9,6 @@ import com.mogilan.service.impl.*;
 import com.mogilan.servlet.mapper.impl.*;
 
 import java.util.HashMap;
-import java.util.Map;
 
 public class ApplicationContext {
 
