@@ -32,7 +32,6 @@ public class LawyerServlet extends HttpServlet {
     private final TaskService taskService = TaskServiceImpl.getInstance();
     private final ServletExceptionHandler exceptionHandler = ServletExceptionHandlerImpl.getInstance();
     private final ObjectMapper objectMapper = new ObjectMapper();
-
     private static final String REGEX_FOR_SUB_RESOURCES_1 = "\\/(\\d+)\\/tasks\\/";
     private static final String REGEX_FOR_SUB_RESOURCES_2 = "\\/(\\d+)\\/tasks\\/(\\d*)";
 
@@ -211,7 +210,7 @@ public class LawyerServlet extends HttpServlet {
         }
     }
 
-    private TaskServlet.Ids getResourcesIds(HttpServletRequest req) throws PathVariableException {
+    private Ids getResourcesIds(HttpServletRequest req) throws PathVariableException {
         var pathInfo = req.getPathInfo();
         Pattern pattern = Pattern.compile(REGEX_FOR_SUB_RESOURCES_2);
         Matcher matcher = pattern.matcher(pathInfo);
@@ -229,7 +228,7 @@ public class LawyerServlet extends HttpServlet {
         } else {
             throw new PathVariableException(ServletsUtil.PATH_VARIABLE_IS_NOT_CORRECT_MESSAGE);
         }
-        return new TaskServlet.Ids(resourceId, subResourceId);
+        return new Ids(resourceId, subResourceId);
     }
 
     record Ids(Long resourceId, Long subResourceId) {
