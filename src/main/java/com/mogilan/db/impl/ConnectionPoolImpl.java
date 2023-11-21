@@ -22,15 +22,21 @@ public class ConnectionPoolImpl implements ConnectionPool {
     private final BlockingQueue<Connection> pool;
     private final List<Connection> sourceConnections;
 
-     {
+    static {
         loadDriver();
+    }
+
+    public ConnectionPoolImpl() {
         var poolSize = getPoolSize();
         sourceConnections = new ArrayList<>(poolSize);
         pool = new ArrayBlockingQueue<>(poolSize);
         populatePool(poolSize);
     }
 
-    public ConnectionPoolImpl() {
+    public ConnectionPoolImpl(String url, String user, String password, int poolSize) {
+        sourceConnections = new ArrayList<>(poolSize);
+        pool = new ArrayBlockingQueue<>(poolSize);
+        populatePool(url, user, password, poolSize);
     }
 
     public Connection getConnection() {
@@ -51,7 +57,7 @@ public class ConnectionPoolImpl implements ConnectionPool {
         }
     }
 
-    private void loadDriver() {
+    private static void loadDriver() {
         try {
             Class.forName(PropertiesUtil.get(DRIVER_KEY));
         } catch (ClassNotFoundException e) {
@@ -78,12 +84,35 @@ public class ConnectionPoolImpl implements ConnectionPool {
         }
     }
 
+    private void populatePool(String url, String user, String password, int poolSize) {
+        for (int i = 0; i < poolSize; i++) {
+            var connection = open(url, user, password);
+            var proxyConnection = (Connection) Proxy.newProxyInstance(ConnectionPoolImpl.class.getClassLoader(), new Class[]{Connection.class},
+                    (proxy, method, args) -> method.getName().equals("close")
+                            ? pool.add((Connection) proxy)
+                            : method.invoke(connection, args));
+            pool.add(proxyConnection);
+            sourceConnections.add(connection);
+        }
+    }
+
     private Connection open() {
         try {
             return DriverManager.getConnection(
                     PropertiesUtil.get(URL_KEY),
                     PropertiesUtil.get(USER_KEY),
                     PropertiesUtil.get(PASSWORD_KEY));
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private Connection open(String url, String user, String password) {
+        try {
+            return DriverManager.getConnection(
+                    url,
+                    user,
+                    password);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

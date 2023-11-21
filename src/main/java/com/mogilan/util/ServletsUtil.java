@@ -18,12 +18,12 @@ public final class ServletsUtil {
 
     public static Long getPathVariable(String pathInfo) throws PathVariableException {
         if (pathInfo == null || pathInfo.equals("/")) {
-            throw new PathVariableException("Path variable is not correct. Please check URI");
+            throw new PathVariableException(PATH_VARIABLE_IS_NOT_CORRECT_MESSAGE);
         }
         var regEx = "\\/\\d+";
         var matches = Pattern.matches(regEx, pathInfo);
         if (!matches) {
-            throw new PathVariableException("Path variable is not correct. Please check URI");
+            throw new PathVariableException(PATH_VARIABLE_IS_NOT_CORRECT_MESSAGE);
         }
         return Long.parseLong(pathInfo.substring(1));
     }
