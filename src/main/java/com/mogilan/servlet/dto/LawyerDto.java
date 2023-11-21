@@ -1,22 +1,21 @@
 package com.mogilan.servlet.dto;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.*;
 
 import java.util.List;
 
+@JsonIdentityInfo(
+        generator = ObjectIdGenerators.PropertyGenerator.class,
+        property = "id")
 public class LawyerDto {
     private Long id;
     private String firstName;
     private String lastName;
     private JobTitle jobTitle;
     private double hourlyRate;
-    //    @JsonBackReference("lawyers"
     @JsonBackReference
     private LawFirmDto lawFirm;
     private ContactDetailsDto contacts;
-    @JsonIgnore
     private List<TaskDto> tasks;
 
     public LawyerDto(String firstName, String lastName, JobTitle jobTitle,

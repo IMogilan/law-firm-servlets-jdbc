@@ -56,7 +56,7 @@ public class LawyerServiceImpl implements LawyerService {
     public List<LawyerDto> readAllByTaskId(Long taskId) {
         Objects.requireNonNull(taskId);
 
-        var lawyers = lawyerDao.findAllByLawFirmId(taskId);
+        var lawyers = lawyerDao.findAllByTaskId(taskId);
         return lawyerMapper.toDtoList(lawyers);
     }
 

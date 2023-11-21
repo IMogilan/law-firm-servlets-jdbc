@@ -1,8 +1,6 @@
 package com.mogilan.servlet.dto;
 
 import com.fasterxml.jackson.annotation.*;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -20,7 +18,7 @@ public class TaskDto {
     private double hoursSpentOnTask;
     @JsonBackReference
     private ClientDto client;
-    @JsonIgnore
+    //    @JsonIgnore
     private List<LawyerDto> lawyers;
 
     public TaskDto() {

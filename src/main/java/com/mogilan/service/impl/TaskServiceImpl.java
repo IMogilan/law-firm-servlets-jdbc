@@ -51,7 +51,7 @@ public class TaskServiceImpl implements TaskService {
     public List<TaskDto> readAllByLawyerId(Long lawyerId) {
         Objects.requireNonNull(lawyerId);
 
-        var tasks = taskDao.findAllByClientId(lawyerId);
+        var tasks = taskDao.findAllByLawyerId(lawyerId);
         return taskMapper.toDtoList(tasks);
     }
 
