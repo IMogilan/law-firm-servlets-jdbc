@@ -1,6 +1,7 @@
 package com.mogilan.db.impl;
 
 import com.mogilan.util.PropertiesUtil;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.sql.Connection;
@@ -54,12 +55,24 @@ class ConnectionPoolImplTest {
         }
     }
 
-        @Test
-        void getConnectionSuccess () throws NoSuchFieldException, IllegalAccessException {
-            var connectionPool = new ConnectionPoolImpl();
-            var connection = connectionPool.getConnection();
+    @Test
+    void creationConnectionPoolShouldThrowExceptionIfParamIncorrect() {
+        Assertions.assertThrows(RuntimeException.class, () -> {
+            var connectionPool = new ConnectionPoolImpl(
+                    "dummy",
+                    "dummy",
+                    "dummy",
+                    0);
+        });
+    }
+
+    @Test
+    void getConnectionSuccess() throws NoSuchFieldException, IllegalAccessException, SQLException {
+        var connectionPool = new ConnectionPoolImpl();
+        try (var connection = connectionPool.getConnection()) {
             assertThat(connection).isNotNull();
             assertThat(connection).isInstanceOf(Connection.class);
+
 
             var poolField = connectionPool.getClass().getDeclaredField("pool");
             assertThat(poolField).isNotNull();
@@ -76,9 +89,10 @@ class ConnectionPoolImplTest {
                 poolField.setAccessible(false);
             }
         }
+    }
 
     @Test
-    void connectionShouldBeAddedToPoolOnCloseMethodInvocation () throws NoSuchFieldException, IllegalAccessException, SQLException {
+    void connectionShouldBeAddedToPoolOnCloseMethodInvocation() throws NoSuchFieldException, IllegalAccessException, SQLException {
         var connectionPool = new ConnectionPoolImpl();
 
         var connection = connectionPool.getConnection();
@@ -104,25 +118,25 @@ class ConnectionPoolImplTest {
     }
 
 
-        @Test
-        void closePoolSuccess () throws NoSuchFieldException, IllegalAccessException, SQLException {
-            var connectionPool = new ConnectionPoolImpl();
-            connectionPool.closePool();
+    @Test
+    void closePoolSuccess() throws NoSuchFieldException, IllegalAccessException, SQLException {
+        var connectionPool = new ConnectionPoolImpl();
+        connectionPool.closePool();
 
-            var poolField = connectionPool.getClass().getDeclaredField("pool");
-            assertThat(poolField).isNotNull();
-            try {
-                poolField.setAccessible(true);
-                var pool = poolField.get(connectionPool);
-                assertThat(pool).isNotNull();
-                assertThat(pool).isInstanceOf(BlockingQueue.class);
-                var blockingQueue = (BlockingQueue<Connection>) pool;
-                assertThat(blockingQueue).isNotEmpty();
-                for (Connection connection : blockingQueue) {
-                    assertThat(connection.isClosed()).isTrue();
-                }
-            } finally {
-                poolField.setAccessible(false);
+        var poolField = connectionPool.getClass().getDeclaredField("pool");
+        assertThat(poolField).isNotNull();
+        try {
+            poolField.setAccessible(true);
+            var pool = poolField.get(connectionPool);
+            assertThat(pool).isNotNull();
+            assertThat(pool).isInstanceOf(BlockingQueue.class);
+            var blockingQueue = (BlockingQueue<Connection>) pool;
+            assertThat(blockingQueue).isNotEmpty();
+            for (Connection connection : blockingQueue) {
+                assertThat(connection.isClosed()).isTrue();
             }
+        } finally {
+            poolField.setAccessible(false);
         }
+    }
 }
