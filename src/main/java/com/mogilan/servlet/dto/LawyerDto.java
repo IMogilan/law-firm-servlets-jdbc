@@ -14,7 +14,6 @@ public class LawyerDto {
     private String lastName;
     private JobTitle jobTitle;
     private double hourlyRate;
-    @JsonBackReference
     private LawFirmDto lawFirm;
     private ContactDetailsDto contacts;
     private List<TaskDto> tasks;

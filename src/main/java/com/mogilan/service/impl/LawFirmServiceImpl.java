@@ -7,6 +7,8 @@ import com.mogilan.service.LawyerService;
 import com.mogilan.servlet.dto.LawFirmDto;
 import com.mogilan.servlet.dto.LawyerDto;
 import com.mogilan.servlet.mapper.LawFirmMapper;
+import com.mogilan.servlet.mapper.LawyerMapper;
+import com.mogilan.servlet.mapper.SimpleLawyerMapper;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -15,11 +17,16 @@ public class LawFirmServiceImpl implements LawFirmService {
     private final LawFirmDao lawFirmDao;
     private final LawFirmMapper lawFirmMapper;
     private final LawyerService lawyerService;
+    private final SimpleLawyerMapper simpleLawyerMapper;
+    private final LawyerMapper lawyerMapper;
 
-    public LawFirmServiceImpl(LawFirmDao lawFirmDao, LawFirmMapper lawFirmMapper, LawyerService lawyerService) {
+    public LawFirmServiceImpl(LawFirmDao lawFirmDao, LawFirmMapper lawFirmMapper, LawyerService lawyerService,
+                              SimpleLawyerMapper simpleLawyerMapper, LawyerMapper lawyerMapper) {
         this.lawFirmDao = lawFirmDao;
         this.lawFirmMapper = lawFirmMapper;
         this.lawyerService = lawyerService;
+        this.simpleLawyerMapper = simpleLawyerMapper;
+        this.lawyerMapper = lawyerMapper;
     }
 
     @Override
@@ -30,8 +37,11 @@ public class LawFirmServiceImpl implements LawFirmService {
         var savedLawFirm = lawFirmDao.save(newLawFirm);
         var createdLawFirmDto = lawFirmMapper.toDto(savedLawFirm);
 
-        createNewLawyers(lawFirmDto.getLawyers(), createdLawFirmDto);
-        createdLawFirmDto.setLawyers(lawyerService.readAllByLawFirmId(createdLawFirmDto.getId()));
+        var lawyerDtoList = simpleLawyerMapper.toLawyerDtoList(lawFirmDto.getLawyers());
+        createNewLawyers(lawyerDtoList, createdLawFirmDto);
+        var simpleLawyerDtoList = simpleLawyerMapper.toSimpleLawyerDtoList(lawyerService.readAllByLawFirmId(createdLawFirmDto.getId()));
+        createdLawFirmDto.setLawyers(simpleLawyerDtoList);
+
         return createdLawFirmDto;
     }
 
@@ -90,7 +100,9 @@ public class LawFirmServiceImpl implements LawFirmService {
     }
 
     private void updateLawyerListOfThisLawFirm(Long id, LawFirmDto lawFirmDto) {
-        var newLawyersList = lawFirmDto.getLawyers();
+        var lawFirm = lawFirmMapper.toEntity(lawFirmDto);
+        var lawyerList = lawFirm.getLawyers();
+        var newLawyersList = lawyerMapper.toDtoList(lawyerList);
         var prevLawyersList = lawyerService.readAllByLawFirmId(id);
         createAllIfPrevLawyerListEmpty(lawFirmDto, newLawyersList, prevLawyersList);
         deleteAllIfNewLawyerListEmpty(newLawyersList, prevLawyersList);
@@ -114,15 +126,15 @@ public class LawFirmServiceImpl implements LawFirmService {
             var newLawyersWithoutId = newLawyersList.stream().filter(lawyerDto -> lawyerDto.getId() == null).toList();
             createNewLawyers(newLawyersWithoutId, lawFirmDto);
 
-            newLawyersList.removeAll(newLawyersWithoutId);
-            var lawyersWithId = newLawyersList.stream().collect(Collectors.toMap(LawyerDto::getId, lawyerDto -> lawyerDto));
+            var lawyerWithIdList = newLawyersList.stream().filter(lawyerDto -> lawyerDto.getId() != null).toList();
+            var lawyersWithIdMap = newLawyersList.stream().collect(Collectors.toMap(LawyerDto::getId, lawyerDto -> lawyerDto));
 
-            var newLawyerListIds = newLawyersList.stream().map(LawyerDto::getId).toList();
+            var newLawyerListIds = lawyerWithIdList.stream().map(LawyerDto::getId).toList();
             var prevLawyersListIds = prevLawyersList.stream().map(LawyerDto::getId).toList();
 
             var retainedLayersIds = new HashSet<>(newLawyerListIds);
             retainedLayersIds.retainAll(prevLawyersListIds);
-            retainedLayersIds.forEach(lawyerId -> lawyerService.update(lawyerId, lawyersWithId.get(lawyerId)));
+            retainedLayersIds.forEach(lawyerId -> lawyerService.update(lawyerId, lawyersWithIdMap.get(lawyerId)));
 
             var removedLayers = new HashSet<>(prevLawyersListIds);
             removedLayers.removeAll(retainedLayersIds);
@@ -131,7 +143,7 @@ public class LawFirmServiceImpl implements LawFirmService {
             var addedLawyers = new HashSet<>(newLawyerListIds);
             addedLawyers.removeAll(retainedLayersIds);
             addedLawyers.forEach(lawyerId -> {
-                var addedLawyer = lawyersWithId.get(lawyerId);
+                var addedLawyer = lawyersWithIdMap.get(lawyerId);
                 addedLawyer.setLawFirm(lawFirmDto);
                 lawyerService.update(lawyerId, addedLawyer);
             });

@@ -7,6 +7,7 @@ import com.mogilan.model.Task;
 import com.mogilan.servlet.dto.*;
 import com.mogilan.servlet.mapper.ClientMapper;
 import com.mogilan.servlet.mapper.ContactDetailsMapper;
+import com.mogilan.servlet.mapper.SimpleLawyerMapper;
 import com.mogilan.servlet.mapper.SimpleTaskMapper;
 
 import java.util.Collections;
@@ -16,10 +17,12 @@ public class ClientMapperImpl implements ClientMapper {
 
     private final ContactDetailsMapper contactDetailsMapper;
     private final SimpleTaskMapper simpleTaskMapper;
+    private final SimpleLawyerMapper simpleLawyerMapper;
 
-    public ClientMapperImpl(ContactDetailsMapper contactDetailsMapper, SimpleTaskMapper simpleTaskMapper) {
+    public ClientMapperImpl(ContactDetailsMapper contactDetailsMapper, SimpleTaskMapper simpleTaskMapper, SimpleLawyerMapper simpleLawyerMapper) {
         this.contactDetailsMapper = contactDetailsMapper;
         this.simpleTaskMapper = simpleTaskMapper;
+        this.simpleLawyerMapper = simpleLawyerMapper;
     }
 
     @Override
@@ -114,7 +117,8 @@ public class ClientMapperImpl implements ClientMapper {
         if (lawFirm == null) {
             return null;
         }
-        return new LawFirmDto(lawFirm.getId(), lawFirm.getName(), lawFirm.getCompanyStartDay(), List.of(lawyerDto));
+        var simpleLawyerDtoList = simpleLawyerMapper.toSimpleLawyerDtoList(List.of(lawyerDto));
+        return new LawFirmDto(lawFirm.getId(), lawFirm.getName(), lawFirm.getCompanyStartDay(), simpleLawyerDtoList);
     }
 
     private List<Task> getTaskEntityList(ClientDto clientDto, Client client) {

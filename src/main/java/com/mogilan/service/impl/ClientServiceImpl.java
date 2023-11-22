@@ -1,12 +1,10 @@
 package com.mogilan.service.impl;
 
 import com.mogilan.exception.EntityNotFoundException;
-import com.mogilan.model.Client;
 import com.mogilan.repository.ClientDao;
 import com.mogilan.service.ClientService;
 import com.mogilan.service.TaskService;
 import com.mogilan.servlet.dto.ClientDto;
-import com.mogilan.servlet.dto.SimpleTaskDto;
 import com.mogilan.servlet.dto.TaskDto;
 import com.mogilan.servlet.mapper.ClientMapper;
 import com.mogilan.servlet.mapper.SimpleTaskMapper;
@@ -39,10 +37,12 @@ public class ClientServiceImpl implements ClientService {
         var client = clientMapper.toEntity(newClientDto);
         var savedClient = clientDao.save(client);
         var createdClientDto = clientMapper.toDto(savedClient);
+
         var taskDtoList = simpleTaskMapper.toTaskDtoList(newClientDto.getTasks());
         createNewTasks(taskDtoList, createdClientDto);
         var simpleTaskDtoList = simpleTaskMapper.toSimpleTaskDtoList(taskService.readAllByClientId(createdClientDto.getId()));
         createdClientDto.setTasks(simpleTaskDtoList);
+
         return createdClientDto;
     }
 

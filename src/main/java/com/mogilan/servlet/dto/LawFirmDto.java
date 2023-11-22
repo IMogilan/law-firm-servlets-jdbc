@@ -10,19 +10,12 @@ public class LawFirmDto {
     private Long id;
     private String name;
     private LocalDate companyStartDay;
-    @JsonManagedReference
-    private List<LawyerDto> lawyers;
+    private List<SimpleLawyerDto> lawyers;
 
     public LawFirmDto() {
     }
 
-    public LawFirmDto(String name, LocalDate companyStartDay, List<LawyerDto> lawyers) {
-        this.name = name;
-        this.companyStartDay = companyStartDay;
-        this.lawyers = lawyers;
-    }
-
-    public LawFirmDto(Long id, String name, LocalDate companyStartDay, List<LawyerDto> lawyers) {
+    public LawFirmDto(Long id, String name, LocalDate companyStartDay, List<SimpleLawyerDto> lawyers) {
         this.id = id;
         this.name = name;
         this.companyStartDay = companyStartDay;
@@ -53,11 +46,11 @@ public class LawFirmDto {
         this.companyStartDay = companyStartDay;
     }
 
-    public List<LawyerDto> getLawyers() {
+    public List<SimpleLawyerDto> getLawyers() {
         return lawyers;
     }
 
-    public void setLawyers(List<LawyerDto> lawyers) {
+    public void setLawyers(List<SimpleLawyerDto> lawyers) {
         this.lawyers = lawyers;
     }
 

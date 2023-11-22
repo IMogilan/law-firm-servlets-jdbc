@@ -5,10 +5,7 @@ import com.mogilan.model.LawFirm;
 import com.mogilan.model.Lawyer;
 import com.mogilan.model.Task;
 import com.mogilan.servlet.dto.*;
-import com.mogilan.servlet.mapper.ContactDetailsMapper;
-import com.mogilan.servlet.mapper.LawyerMapper;
-import com.mogilan.servlet.mapper.SimpleTaskMapper;
-import com.mogilan.servlet.mapper.TaskMapper;
+import com.mogilan.servlet.mapper.*;
 
 import java.util.Collections;
 import java.util.List;
@@ -16,10 +13,12 @@ import java.util.List;
 public class LawyerMapperImpl implements LawyerMapper {
     private final ContactDetailsMapper contactDetailsMapper;
     private final SimpleTaskMapper simpleTaskMapper;
+    private final SimpleLawyerMapper simpleLawyerMapper;
 
-    public LawyerMapperImpl(ContactDetailsMapper contactDetailsMapper, SimpleTaskMapper simpleTaskMapper) {
+    public LawyerMapperImpl(ContactDetailsMapper contactDetailsMapper, SimpleTaskMapper simpleTaskMapper, SimpleLawyerMapper simpleLawyerMapper) {
         this.contactDetailsMapper = contactDetailsMapper;
         this.simpleTaskMapper = simpleTaskMapper;
+        this.simpleLawyerMapper = simpleLawyerMapper;
     }
 
     @Override
@@ -79,7 +78,8 @@ public class LawyerMapperImpl implements LawyerMapper {
         if (lawFirm == null) {
             return null;
         }
-        return new LawFirmDto(lawFirm.getId(), lawFirm.getName(), lawFirm.getCompanyStartDay(), List.of(resultDto));
+        var simpleLawyerDtoList = simpleLawyerMapper.toSimpleLawyerDtoList(List.of(resultDto));
+        return new LawFirmDto(lawFirm.getId(), lawFirm.getName(), lawFirm.getCompanyStartDay(), simpleLawyerDtoList);
     }
 
     private LawFirm getLawFirm(LawyerDto lawyerDto, Lawyer resultEntity) {

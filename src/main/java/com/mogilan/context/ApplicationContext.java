@@ -58,16 +58,18 @@ public class ApplicationContext {
         var lawFirmDao = new LawFirmDaoImpl(connectionPool, lawFirmResultSetMapper);
         beans.put("lawFirmDao", lawFirmDao);
 
+        var simpleTaskMapper = SimpleTaskMapper.INSTANCE;
+        var simpleLawyerMapper = new SimpleLawyerMapperImpl();
+
         var contactDetailsMapper = new ContactDetailsMapperImpl();
         beans.put("contactDetailsMapper", contactDetailsMapper);
-        var simpleTaskMapper = SimpleTaskMapper.INSTANCE;
-        var clientMapper = new ClientMapperImpl(contactDetailsMapper, simpleTaskMapper);
+        var clientMapper = new ClientMapperImpl(contactDetailsMapper, simpleTaskMapper, simpleLawyerMapper);
         beans.put("clientMapper", clientMapper);
-        var taskMapper = new TaskMapperImpl(contactDetailsMapper, simpleTaskMapper);
+        var taskMapper = new TaskMapperImpl(contactDetailsMapper, simpleTaskMapper, simpleLawyerMapper);
         beans.put("taskMapper", taskMapper);
-        var lawyerMapper = new LawyerMapperImpl(contactDetailsMapper, simpleTaskMapper);
+        var lawyerMapper = new LawyerMapperImpl(contactDetailsMapper, simpleTaskMapper, simpleLawyerMapper);
         beans.put("lawyerMapper", lawyerMapper);
-        var lawFirmMapper = new LawFirmMapperImpl(lawyerMapper);
+        var lawFirmMapper = new LawFirmMapperImpl(lawyerMapper, simpleLawyerMapper);
         beans.put("lawFirmMapper", lawFirmMapper);
 
         var contactDetailsService = new ContactDetailsServiceImpl(contactDetailsDao, contactDetailsMapper);
@@ -78,7 +80,7 @@ public class ApplicationContext {
         beans.put("taskService", taskService);
         var clientService = new ClientServiceImpl(clientDao, clientMapper, taskService, simpleTaskMapper, taskMapper);
         beans.put("clientService", clientService);
-        var lawFirmService = new LawFirmServiceImpl(lawFirmDao, lawFirmMapper, lawyerService);
+        var lawFirmService = new LawFirmServiceImpl(lawFirmDao, lawFirmMapper, lawyerService, simpleLawyerMapper, lawyerMapper);
         beans.put("lawFirmService", lawFirmService);
     }
 

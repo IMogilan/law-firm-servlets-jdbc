@@ -6,6 +6,7 @@ import com.mogilan.model.Lawyer;
 import com.mogilan.model.Task;
 import com.mogilan.servlet.dto.*;
 import com.mogilan.servlet.mapper.ContactDetailsMapper;
+import com.mogilan.servlet.mapper.SimpleLawyerMapper;
 import com.mogilan.servlet.mapper.SimpleTaskMapper;
 import com.mogilan.servlet.mapper.TaskMapper;
 
@@ -16,10 +17,12 @@ public class TaskMapperImpl implements TaskMapper {
 
     private final ContactDetailsMapper contactDetailsMapper;
     private final SimpleTaskMapper simpleTaskMapper;
+    private final SimpleLawyerMapper simpleLawyerMapper;
 
-    public TaskMapperImpl(ContactDetailsMapper contactDetailsMapper, SimpleTaskMapper simpleTaskMapper) {
+    public TaskMapperImpl(ContactDetailsMapper contactDetailsMapper, SimpleTaskMapper simpleTaskMapper, SimpleLawyerMapper simpleLawyerMapper) {
         this.contactDetailsMapper = contactDetailsMapper;
         this.simpleTaskMapper = simpleTaskMapper;
+        this.simpleLawyerMapper = simpleLawyerMapper;
     }
 
     @Override
@@ -117,7 +120,8 @@ public class TaskMapperImpl implements TaskMapper {
         if (lawFirm == null) {
             return null;
         }
-        return new LawFirmDto(lawFirm.getId(), lawFirm.getName(), lawFirm.getCompanyStartDay(), List.of(resultDto));
+        var simpleLawyerDtoList = simpleLawyerMapper.toSimpleLawyerDtoList(List.of(resultDto));
+        return new LawFirmDto(lawFirm.getId(), lawFirm.getName(), lawFirm.getCompanyStartDay(), simpleLawyerDtoList);
     }
 
     private List<Lawyer> getLawyerList(TaskDto taskDto, Task resultEntity) {
