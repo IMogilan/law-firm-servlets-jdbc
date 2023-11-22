@@ -33,7 +33,7 @@ public final class ServletExceptionHandlerImpl implements ServletExceptionHandle
         }
     }
 
-    public int getErrorStatusCode(Exception e) {
+    private int getErrorStatusCode(Exception e) {
         if (e instanceof DaoException) {
             return HttpServletResponse.SC_BAD_REQUEST;
         } else if (e instanceof IllegalArgumentException) {
@@ -45,7 +45,7 @@ public final class ServletExceptionHandlerImpl implements ServletExceptionHandle
         }
     }
 
-    public String getErrorStatusMessage(Exception e) {
+    private String getErrorStatusMessage(Exception e) {
         if (e instanceof DaoException) {
             return ServletsUtil.BAD_REQUEST_MESSAGE;
         } else if (e instanceof PathVariableException) {
