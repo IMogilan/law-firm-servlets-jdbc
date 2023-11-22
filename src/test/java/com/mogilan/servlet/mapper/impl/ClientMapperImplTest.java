@@ -26,11 +26,8 @@ import static org.junit.jupiter.api.Assertions.*;
 @ExtendWith(MockitoExtension.class)
 class ClientMapperImplTest {
 
-    @Spy
     ContactDetailsMapper contactDetailsMapper = new ContactDetailsMapperImpl();
-    @Spy
     SimpleTaskMapper simpleTaskMapper = SimpleTaskMapper.INSTANCE;
-    @Spy
     SimpleLawyerMapper simpleLawyerMapper = new SimpleLawyerMapperImpl();
 
     ClientMapper clientMapper = new ClientMapperImpl(contactDetailsMapper, simpleTaskMapper, simpleLawyerMapper);
@@ -40,8 +37,12 @@ class ClientMapperImplTest {
     void toDtoSuccess(Client given, ClientDto expectedResult) {
         var actualResult = clientMapper.toDto(given);
         assertThat(actualResult).isEqualTo(expectedResult);
-        if (actualResult != null && actualResult.getTasks() != null) {
-            assertThat(actualResult.getTasks().size()).isEqualTo(given.getTasks().size());
+        if(actualResult != null && given != null){
+            if(given.getTasks() == null) {
+                assertThat(actualResult.getTasks()).isEmpty();
+            } else {
+                assertThat(actualResult.getTasks().size()).isEqualTo(given.getTasks().size());
+            }
         }
     }
 
@@ -50,8 +51,12 @@ class ClientMapperImplTest {
     void toEntitySuccess(ClientDto given, Client expectedResult) {
         var actualResult = clientMapper.toEntity(given);
         assertThat(actualResult).isEqualTo(expectedResult);
-        if (actualResult != null && actualResult.getTasks() != null) {
-            assertThat(actualResult.getTasks().size()).isEqualTo(given.getTasks().size());
+        if(actualResult != null && given != null){
+            if(given.getTasks() == null) {
+                assertThat(actualResult.getTasks()).isEmpty();
+            } else {
+                assertThat(actualResult.getTasks().size()).isEqualTo(given.getTasks().size());
+            }
         }
     }
 
