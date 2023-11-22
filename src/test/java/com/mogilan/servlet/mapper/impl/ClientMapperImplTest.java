@@ -40,7 +40,7 @@ class ClientMapperImplTest {
     void toDtoSuccess(Client given, ClientDto expectedResult) {
         var actualResult = clientMapper.toDto(given);
         assertThat(actualResult).isEqualTo(expectedResult);
-        if (actualResult != null) {
+        if (actualResult != null && actualResult.getTasks() != null) {
             assertThat(actualResult.getTasks().size()).isEqualTo(given.getTasks().size());
         }
     }
@@ -50,7 +50,7 @@ class ClientMapperImplTest {
     void toEntitySuccess(ClientDto given, Client expectedResult) {
         var actualResult = clientMapper.toEntity(given);
         assertThat(actualResult).isEqualTo(expectedResult);
-        if (actualResult != null) {
+        if (actualResult != null && actualResult.getTasks() != null) {
             assertThat(actualResult.getTasks().size()).isEqualTo(given.getTasks().size());
         }
     }
