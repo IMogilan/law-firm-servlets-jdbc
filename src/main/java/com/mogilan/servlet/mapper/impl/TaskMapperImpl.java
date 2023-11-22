@@ -4,11 +4,9 @@ import com.mogilan.model.Client;
 import com.mogilan.model.LawFirm;
 import com.mogilan.model.Lawyer;
 import com.mogilan.model.Task;
-import com.mogilan.servlet.dto.ClientDto;
-import com.mogilan.servlet.dto.LawFirmDto;
-import com.mogilan.servlet.dto.LawyerDto;
-import com.mogilan.servlet.dto.TaskDto;
+import com.mogilan.servlet.dto.*;
 import com.mogilan.servlet.mapper.ContactDetailsMapper;
+import com.mogilan.servlet.mapper.SimpleTaskMapper;
 import com.mogilan.servlet.mapper.TaskMapper;
 
 import java.util.Collections;
@@ -17,9 +15,11 @@ import java.util.List;
 public class TaskMapperImpl implements TaskMapper {
 
     private final ContactDetailsMapper contactDetailsMapper;
+    private final SimpleTaskMapper simpleTaskMapper;
 
-    public TaskMapperImpl(ContactDetailsMapper contactDetailsMapper) {
+    public TaskMapperImpl(ContactDetailsMapper contactDetailsMapper, SimpleTaskMapper simpleTaskMapper) {
         this.contactDetailsMapper = contactDetailsMapper;
+        this.simpleTaskMapper = simpleTaskMapper;
     }
 
     @Override
@@ -78,7 +78,8 @@ public class TaskMapperImpl implements TaskMapper {
         if (client == null) {
             return null;
         }
-        return new ClientDto(client.getId(), client.getName(), client.getDescription(), List.of(resultDto));
+        var simpleTaskDtoList = simpleTaskMapper.toSimpleTaskDtoList(List.of(resultDto));
+        return new ClientDto(client.getId(), client.getName(), client.getDescription(), simpleTaskDtoList);
     }
 
     private Client getClientEntity(TaskDto taskDto, Task resultEntity) {

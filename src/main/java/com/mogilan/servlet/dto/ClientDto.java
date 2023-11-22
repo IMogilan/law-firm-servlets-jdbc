@@ -1,7 +1,5 @@
 package com.mogilan.servlet.dto;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-
 import java.util.List;
 import java.util.Objects;
 
@@ -9,19 +7,12 @@ public class ClientDto {
     private Long id;
     private String name;
     private String description;
-    @JsonManagedReference
-    private List<TaskDto> tasks;
+    private List<SimpleTaskDto> tasks;
 
     public ClientDto() {
     }
 
-    public ClientDto(String name, String description, List<TaskDto> tasks) {
-        this.name = name;
-        this.description = description;
-        this.tasks = tasks;
-    }
-
-    public ClientDto(Long id, String name, String description, List<TaskDto> tasks) {
+    public ClientDto(Long id, String name, String description, List<SimpleTaskDto> tasks) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -52,11 +43,11 @@ public class ClientDto {
         this.description = description;
     }
 
-    public List<TaskDto> getTasks() {
+    public List<SimpleTaskDto> getTasks() {
         return tasks;
     }
 
-    public void setTasks(List<TaskDto> tasks) {
+    public void setTasks(List<SimpleTaskDto> tasks) {
         this.tasks = tasks;
     }
 

@@ -1,12 +1,9 @@
 package com.mogilan.servlet.dto;
 
-import com.fasterxml.jackson.annotation.*;
-
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Objects;
 
-public class TaskDto {
+public class SimpleTaskDto {
     private Long id;
     private String title;
     private String description;
@@ -16,29 +13,12 @@ public class TaskDto {
     private LocalDate dueDate;
     private LocalDate completionDate;
     private double hoursSpentOnTask;
-    private ClientDto client;
-    //    @JsonIgnore
     private List<LawyerDto> lawyers;
 
-    public TaskDto() {
+    public SimpleTaskDto() {
     }
 
-    public TaskDto(String title, String description, TaskPriority priority, TaskStatus status, LocalDate receiptDate,
-                   LocalDate dueDate, LocalDate completionDate, double hoursSpentOnTask, ClientDto client,
-                   List<LawyerDto> lawyers) {
-        this.title = title;
-        this.description = description;
-        this.priority = priority;
-        this.status = status;
-        this.receiptDate = receiptDate;
-        this.dueDate = dueDate;
-        this.completionDate = completionDate;
-        this.hoursSpentOnTask = hoursSpentOnTask;
-        this.client = client;
-        this.lawyers = lawyers;
-    }
-
-    public TaskDto(Long id, String title, String description, TaskPriority priority, TaskStatus status, LocalDate receiptDate, LocalDate dueDate, LocalDate completionDate, double hoursSpentOnTask, ClientDto client, List<LawyerDto> lawyers) {
+    public SimpleTaskDto(Long id, String title, String description, TaskPriority priority, TaskStatus status, LocalDate receiptDate, LocalDate dueDate, LocalDate completionDate, double hoursSpentOnTask, List<LawyerDto> lawyers) {
         this.id = id;
         this.title = title;
         this.description = description;
@@ -48,7 +28,6 @@ public class TaskDto {
         this.dueDate = dueDate;
         this.completionDate = completionDate;
         this.hoursSpentOnTask = hoursSpentOnTask;
-        this.client = client;
         this.lawyers = lawyers;
     }
 
@@ -124,32 +103,11 @@ public class TaskDto {
         this.hoursSpentOnTask = hoursSpentOnTask;
     }
 
-    public ClientDto getClient() {
-        return client;
-    }
-
-    public void setClient(ClientDto client) {
-        this.client = client;
-    }
-
     public List<LawyerDto> getLawyers() {
         return lawyers;
     }
 
     public void setLawyers(List<LawyerDto> lawyers) {
         this.lawyers = lawyers;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        TaskDto taskDto = (TaskDto) o;
-        return Double.compare(taskDto.getHoursSpentOnTask(), getHoursSpentOnTask()) == 0 && Objects.equals(getId(), taskDto.getId()) && Objects.equals(getTitle(), taskDto.getTitle()) && Objects.equals(getDescription(), taskDto.getDescription()) && getPriority() == taskDto.getPriority() && getStatus() == taskDto.getStatus() && Objects.equals(getReceiptDate(), taskDto.getReceiptDate()) && Objects.equals(getDueDate(), taskDto.getDueDate()) && Objects.equals(getCompletionDate(), taskDto.getCompletionDate());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(getId(), getTitle(), getDescription(), getPriority(), getStatus(), getReceiptDate(), getDueDate(), getCompletionDate(), getHoursSpentOnTask());
     }
 }

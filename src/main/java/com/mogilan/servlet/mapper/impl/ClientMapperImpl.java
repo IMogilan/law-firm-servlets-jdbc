@@ -4,12 +4,10 @@ import com.mogilan.model.Client;
 import com.mogilan.model.LawFirm;
 import com.mogilan.model.Lawyer;
 import com.mogilan.model.Task;
-import com.mogilan.servlet.dto.ClientDto;
-import com.mogilan.servlet.dto.LawFirmDto;
-import com.mogilan.servlet.dto.LawyerDto;
-import com.mogilan.servlet.dto.TaskDto;
+import com.mogilan.servlet.dto.*;
 import com.mogilan.servlet.mapper.ClientMapper;
 import com.mogilan.servlet.mapper.ContactDetailsMapper;
+import com.mogilan.servlet.mapper.SimpleTaskMapper;
 
 import java.util.Collections;
 import java.util.List;
@@ -17,9 +15,11 @@ import java.util.List;
 public class ClientMapperImpl implements ClientMapper {
 
     private final ContactDetailsMapper contactDetailsMapper;
+    private final SimpleTaskMapper simpleTaskMapper;
 
-    public ClientMapperImpl(ContactDetailsMapper contactDetailsMapper) {
+    public ClientMapperImpl(ContactDetailsMapper contactDetailsMapper, SimpleTaskMapper simpleTaskMapper) {
         this.contactDetailsMapper = contactDetailsMapper;
+        this.simpleTaskMapper = simpleTaskMapper;
     }
 
     @Override
@@ -28,10 +28,10 @@ public class ClientMapperImpl implements ClientMapper {
             return null;
         }
         var clientDto = new ClientDto(client.getId(), client.getName(), client.getDescription(), null);
-        var clientDtoCopy = new ClientDto(client.getId(), client.getName(), client.getDescription(), null);
 
         var taskDtoList = getTaskDtoList(client, clientDto);
-        clientDto.setTasks(taskDtoList);
+        var simpleTaskDtoList = simpleTaskMapper.toSimpleTaskDtoList(taskDtoList);
+        clientDto.setTasks(simpleTaskDtoList);
 
         return clientDto;
     }
@@ -42,9 +42,8 @@ public class ClientMapperImpl implements ClientMapper {
             return null;
         }
         var client = new Client(clientDto.getId(), clientDto.getName(), clientDto.getDescription(), null);
-        var clientCopy = new Client(clientDto.getId(), clientDto.getName(), clientDto.getDescription(), null);
 
-        var taskEntityList = getTaskEntityList(clientDto, clientCopy);
+        var taskEntityList = getTaskEntityList(clientDto, client);
         client.setTasks(taskEntityList);
 
         return client;
@@ -66,24 +65,21 @@ public class ClientMapperImpl implements ClientMapper {
         return clientDtoList.stream().map(this::toEntity).toList();
     }
 
-    private List<TaskDto> getTaskDtoList(Client client, ClientDto resultDtoCopy) {
+    private List<TaskDto> getTaskDtoList(Client client, ClientDto clientDto) {
         if (client.getTasks() == null) {
             return Collections.emptyList();
         }
         return client.getTasks().stream()
-                .map(task -> getTaskDto(resultDtoCopy, task)).toList();
+                .map(task -> getTaskDto(clientDto, task)).toList();
     }
 
-    private TaskDto getTaskDto(ClientDto resultDtoCopy, Task task) {
+    private TaskDto getTaskDto(ClientDto clientDto, Task task) {
         if (task == null) {
             return null;
         }
         var taskDto = new TaskDto(task.getId(), task.getTitle(), task.getDescription(), task.getPriority(),
                 task.getStatus(), task.getReceiptDate(), task.getDueDate(), task.getCompletionDate(),
-                task.getHoursSpentOnTask(), resultDtoCopy, null);
-        var taskDtoCopy = new TaskDto(task.getId(), task.getTitle(), task.getDescription(), task.getPriority(),
-                task.getStatus(), task.getReceiptDate(), task.getDueDate(), task.getCompletionDate(),
-                task.getHoursSpentOnTask(), resultDtoCopy, null);
+                task.getHoursSpentOnTask(), clientDto, null);
 
         var lawyerDtoList = getLawyerDtoList(task, taskDto);
         taskDto.setLawyers(lawyerDtoList);
@@ -91,12 +87,12 @@ public class ClientMapperImpl implements ClientMapper {
         return taskDto;
     }
 
-    private List<LawyerDto> getLawyerDtoList(Task task, TaskDto resultDtoCopy) {
+    private List<LawyerDto> getLawyerDtoList(Task task, TaskDto taskDto) {
         if (task.getLawyers() == null) {
             return Collections.emptyList();
         }
         return task.getLawyers().stream()
-                .map(lawyer -> getLawyerDto(resultDtoCopy, lawyer)).toList();
+                .map(lawyer -> getLawyerDto(taskDto, lawyer)).toList();
     }
 
     private LawyerDto getLawyerDto(TaskDto resultDtoCopy, Lawyer lawyer) {
@@ -106,50 +102,44 @@ public class ClientMapperImpl implements ClientMapper {
         var lawyerDto = new LawyerDto(lawyer.getId(), lawyer.getFirstName(), lawyer.getLastName(),
                 lawyer.getJobTitle(), lawyer.getHourlyRate(), null,
                 contactDetailsMapper.toDto(lawyer.getContacts()), List.of(resultDtoCopy));
-        var lawyerDtoCopy = new LawyerDto(lawyer.getId(), lawyer.getFirstName(), lawyer.getLastName(),
-                lawyer.getJobTitle(), lawyer.getHourlyRate(), null,
-                contactDetailsMapper.toDto(lawyer.getContacts()), List.of(resultDtoCopy));
 
-        var lawFirmDto = getLawFirmDto(lawyer, lawyerDtoCopy);
+        var lawFirmDto = getLawFirmDto(lawyer, lawyerDto);
         lawyerDto.setLawFirm(lawFirmDto);
 
         return lawyerDto;
     }
 
-    private LawFirmDto getLawFirmDto(Lawyer lawyer, LawyerDto resultDtoCopy) {
+    private LawFirmDto getLawFirmDto(Lawyer lawyer, LawyerDto lawyerDto) {
         var lawFirm = lawyer.getLawFirm();
         if (lawFirm == null) {
             return null;
         }
-        return new LawFirmDto(lawFirm.getId(), lawFirm.getName(), lawFirm.getCompanyStartDay(), List.of(resultDtoCopy));
+        return new LawFirmDto(lawFirm.getId(), lawFirm.getName(), lawFirm.getCompanyStartDay(), List.of(lawyerDto));
     }
 
-    private List<Task> getTaskEntityList(ClientDto clientDto, Client resultEntityCopy) {
+    private List<Task> getTaskEntityList(ClientDto clientDto, Client client) {
         if (clientDto.getTasks() == null) {
             return Collections.emptyList();
         }
         return clientDto.getTasks().stream()
-                .map(taskDto -> getTask(resultEntityCopy, taskDto)).toList();
+                .map(taskDto -> getTask(client, taskDto)).toList();
     }
 
-    private Task getTask(Client resultEntityCopy, TaskDto taskDto) {
+    private Task getTask(Client client, SimpleTaskDto taskDto) {
         if (taskDto == null) {
             return null;
         }
         var taskEntity = new Task(taskDto.getId(), taskDto.getTitle(), taskDto.getDescription(), taskDto.getPriority(),
                 taskDto.getStatus(), taskDto.getReceiptDate(), taskDto.getDueDate(), taskDto.getCompletionDate(),
-                taskDto.getHoursSpentOnTask(), resultEntityCopy, null);
-        var taskEntityCopy = new Task(taskDto.getId(), taskDto.getTitle(), taskDto.getDescription(), taskDto.getPriority(),
-                taskDto.getStatus(), taskDto.getReceiptDate(), taskDto.getDueDate(), taskDto.getCompletionDate(),
-                taskDto.getHoursSpentOnTask(), resultEntityCopy, null);
+                taskDto.getHoursSpentOnTask(), client, null);
 
-        var lawyerList = getLawyerList(taskDto, taskEntityCopy);
+        var lawyerList = getLawyerList(taskDto, taskEntity);
         taskEntity.setLawyers(lawyerList);
 
         return taskEntity;
     }
 
-    private List<Lawyer> getLawyerList(TaskDto taskDto, Task taskEntityCopy) {
+    private List<Lawyer> getLawyerList(SimpleTaskDto taskDto, Task taskEntityCopy) {
         if (taskDto.getLawyers() == null) {
             return Collections.emptyList();
         }
@@ -164,11 +154,8 @@ public class ClientMapperImpl implements ClientMapper {
         var lawyer = new Lawyer(lawyerDto.getId(), lawyerDto.getFirstName(), lawyerDto.getLastName(),
                 lawyerDto.getJobTitle(), lawyerDto.getHourlyRate(), null,
                 contactDetailsMapper.toEntity(lawyerDto.getContacts()), List.of(resultEntity));
-        var lawyerCopy = new Lawyer(lawyerDto.getId(), lawyerDto.getFirstName(), lawyerDto.getLastName(),
-                lawyerDto.getJobTitle(), lawyerDto.getHourlyRate(), null,
-                contactDetailsMapper.toEntity(lawyerDto.getContacts()), List.of(resultEntity));
 
-        LawFirm lawFirm = getLawFirm(lawyerDto, lawyerCopy);
+        LawFirm lawFirm = getLawFirm(lawyerDto, lawyer);
         lawyer.setLawFirm(lawFirm);
 
         return lawyer;

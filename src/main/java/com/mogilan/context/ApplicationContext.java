@@ -6,6 +6,7 @@ import com.mogilan.exception.handler.impl.ServletExceptionHandlerImpl;
 import com.mogilan.repository.impl.*;
 import com.mogilan.repository.mapper.impl.*;
 import com.mogilan.service.impl.*;
+import com.mogilan.servlet.mapper.SimpleTaskMapper;
 import com.mogilan.servlet.mapper.impl.*;
 
 import java.util.HashMap;
@@ -59,11 +60,12 @@ public class ApplicationContext {
 
         var contactDetailsMapper = new ContactDetailsMapperImpl();
         beans.put("contactDetailsMapper", contactDetailsMapper);
-        var clientMapper = new ClientMapperImpl(contactDetailsMapper);
+        var simpleTaskMapper = SimpleTaskMapper.INSTANCE;
+        var clientMapper = new ClientMapperImpl(contactDetailsMapper, simpleTaskMapper);
         beans.put("clientMapper", clientMapper);
-        var taskMapper = new TaskMapperImpl(contactDetailsMapper);
+        var taskMapper = new TaskMapperImpl(contactDetailsMapper, simpleTaskMapper);
         beans.put("taskMapper", taskMapper);
-        var lawyerMapper = new LawyerMapperImpl(contactDetailsMapper);
+        var lawyerMapper = new LawyerMapperImpl(contactDetailsMapper, simpleTaskMapper);
         beans.put("lawyerMapper", lawyerMapper);
         var lawFirmMapper = new LawFirmMapperImpl(lawyerMapper);
         beans.put("lawFirmMapper", lawFirmMapper);
@@ -74,7 +76,7 @@ public class ApplicationContext {
         beans.put("lawyerService", lawyerService);
         var taskService = new TaskServiceImpl(taskDao, taskMapper, lawyerService);
         beans.put("taskService", taskService);
-        var clientService = new ClientServiceImpl(clientDao, clientMapper, taskService);
+        var clientService = new ClientServiceImpl(clientDao, clientMapper, taskService, simpleTaskMapper, taskMapper);
         beans.put("clientService", clientService);
         var lawFirmService = new LawFirmServiceImpl(lawFirmDao, lawFirmMapper, lawyerService);
         beans.put("lawFirmService", lawFirmService);
