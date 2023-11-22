@@ -5,8 +5,6 @@ import com.mogilan.repository.ClientDao;
 import com.mogilan.model.Client;
 import com.mogilan.exception.DaoException;
 import com.mogilan.repository.mapper.ClientResultSetMapper;
-import com.mogilan.repository.mapper.impl.ClientResultSetMapperImpl;
-import com.mogilan.db.impl.ConnectionPoolImpl;
 
 import java.sql.SQLException;
 import java.sql.Statement;

@@ -1,11 +1,11 @@
 package com.mogilan.servlet.mapper.impl;
 
-import com.mogilan.model.ContactDetails;
-import com.mogilan.model.LawFirm;
-import com.mogilan.model.Lawyer;
-import com.mogilan.model.Task;
+import com.mogilan.model.*;
 import com.mogilan.servlet.dto.*;
-import com.mogilan.servlet.mapper.*;
+import com.mogilan.servlet.mapper.ContactDetailsMapper;
+import com.mogilan.servlet.mapper.SimpleLawyerMapper;
+import com.mogilan.servlet.mapper.SimpleTaskMapper;
+import com.mogilan.servlet.mapper.TaskMapper;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -17,18 +17,18 @@ import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class LawFirmMapperImplTest {
+class TaskMapperImplTest {
+
     ContactDetailsMapper contactDetailsMapper = new ContactDetailsMapperImpl();
     SimpleTaskMapper simpleTaskMapper = SimpleTaskMapper.INSTANCE;
     SimpleLawyerMapper simpleLawyerMapper = new SimpleLawyerMapperImpl();
-    LawyerMapper lawyerMapper = new LawyerMapperImpl(contactDetailsMapper, simpleTaskMapper, simpleLawyerMapper);
 
-    LawFirmMapper lawFirmMapper = new LawFirmMapperImpl(lawyerMapper, simpleLawyerMapper);
+    TaskMapper taskMapper = new TaskMapperImpl(contactDetailsMapper, simpleTaskMapper, simpleLawyerMapper);
 
     @ParameterizedTest
     @MethodSource("toDtoSuccessArguments")
-    void toDtoSuccess(LawFirm given, LawFirmDto expectedResult) {
-        var actualResult = lawFirmMapper.toDto(given);
+    void toDtoSuccess(Task given, TaskDto expectedResult) {
+        var actualResult = taskMapper.toDto(given);
         assertThat(actualResult).isEqualTo(expectedResult);
         if (actualResult != null && given != null) {
             if (given.getLawyers() == null) {
@@ -41,8 +41,8 @@ class LawFirmMapperImplTest {
 
     @ParameterizedTest
     @MethodSource("toEntitySuccessArguments")
-    void toEntitySuccess(LawFirmDto given, LawFirm expectedResult) {
-        var actualResult = lawFirmMapper.toEntity(given);
+    void toEntitySuccess(TaskDto given, Task expectedResult) {
+        var actualResult = taskMapper.toEntity(given);
         assertThat(actualResult).isEqualTo(expectedResult);
         if (actualResult != null && given != null) {
             if (given.getLawyers() == null) {
@@ -55,15 +55,15 @@ class LawFirmMapperImplTest {
 
     @ParameterizedTest
     @MethodSource("toDtoListSuccessArguments")
-    void toDtoList(List<LawFirm> given, List<LawFirmDto> expectedResult) {
-        var actualResult = lawFirmMapper.toDtoList(given);
+    void toDtoList(List<Task> given, List<TaskDto> expectedResult) {
+        var actualResult = taskMapper.toDtoList(given);
         assertThat(actualResult).isEqualTo(expectedResult);
     }
 
     @ParameterizedTest
     @MethodSource("toEntityListSuccessArguments")
-    void toEntityList(List<LawFirmDto> given, List<LawFirm> expectedResult) {
-        var actualResult = lawFirmMapper.toEntityList(given);
+    void toEntityList(List<TaskDto> given, List<Task> expectedResult) {
+        var actualResult = taskMapper.toEntityList(given);
         assertThat(actualResult).isEqualTo(expectedResult);
     }
 
@@ -71,7 +71,9 @@ class LawFirmMapperImplTest {
         return Stream.of(
                 Arguments.of(null, null),
                 Arguments.of(
-                        new LawFirm(1L, "AAA", LocalDate.of(2000, 1, 1),
+                        new Task(1L, "Make draft", "ASP", TaskPriority.HIGH, TaskStatus.ACCEPTED,
+                                LocalDate.of(2000, 1, 1), LocalDate.of(2000, 1, 1), null, 5.0,
+                                new Client(1L, "AAA", "BBB", List.of(new Task(), new Task(), new Task(), new Task())),
                                 List.of(
                                         new Lawyer(1L, "1", "1", JobTitle.ASSOCIATE, 100.0,
                                                 new LawFirm(1L, "AAA", null, null),
@@ -83,12 +85,16 @@ class LawFirmMapperImplTest {
                                                 null)
                                 )
                         ),
-                        new LawFirmDto(1L, "AAA", LocalDate.of(2000, 1, 1),
+                        new TaskDto(1L, "Make draft", "ASP", TaskPriority.HIGH, TaskStatus.ACCEPTED,
+                                LocalDate.of(2000, 1, 1), LocalDate.of(2000, 1, 1), null, 5.0,
+                                new ClientDto(1L, "AAA", "BBB", List.of(new SimpleTaskDto(), new SimpleTaskDto(), new SimpleTaskDto(), new SimpleTaskDto())),
                                 List.of(
-                                        new SimpleLawyerDto(1L, "1", "1", JobTitle.ASSOCIATE, 100.0,
+                                        new LawyerDto(1L, "1", "1", JobTitle.ASSOCIATE, 100.0,
+                                                new LawFirmDto(1L, "AAA", null, null),
                                                 new ContactDetailsDto(1L, "1", "777", "777", "777", "test@mail.com"),
                                                 List.of(new TaskDto(), new TaskDto(), new TaskDto())),
-                                        new SimpleLawyerDto(2L, "2", "1", JobTitle.PARTNER, 200.0,
+                                        new LawyerDto(2L, "2", "1", JobTitle.PARTNER, 200.0,
+                                                new LawFirmDto(1L, "BBB", null, null),
                                                 null,
                                                 null)
                                 )
@@ -101,17 +107,23 @@ class LawFirmMapperImplTest {
         return Stream.of(
                 Arguments.of(null, null),
                 Arguments.of(
-                        new LawFirmDto(1L, "AAA", LocalDate.of(2000, 1, 1),
+                        new TaskDto(1L, "Make draft", "ASP", TaskPriority.HIGH, TaskStatus.ACCEPTED,
+                                LocalDate.of(2000, 1, 1), LocalDate.of(2000, 1, 1), null, 5.0,
+                                new ClientDto(1L, "AAA", "BBB", List.of(new SimpleTaskDto(), new SimpleTaskDto(), new SimpleTaskDto(), new SimpleTaskDto())),
                                 List.of(
-                                        new SimpleLawyerDto(1L, "1", "1", JobTitle.ASSOCIATE, 100.0,
+                                        new LawyerDto(1L, "1", "1", JobTitle.ASSOCIATE, 100.0,
+                                                new LawFirmDto(1L, "AAA", null, null),
                                                 new ContactDetailsDto(1L, "1", "777", "777", "777", "test@mail.com"),
                                                 List.of(new TaskDto(), new TaskDto(), new TaskDto())),
-                                        new SimpleLawyerDto(2L, "2", "1", JobTitle.PARTNER, 200.0,
+                                        new LawyerDto(2L, "2", "1", JobTitle.PARTNER, 200.0,
+                                                new LawFirmDto(1L, "BBB", null, null),
                                                 null,
                                                 null)
                                 )
                         ),
-                        new LawFirm(1L, "AAA", LocalDate.of(2000, 1, 1),
+                        new Task(1L, "Make draft", "ASP", TaskPriority.HIGH, TaskStatus.ACCEPTED,
+                                LocalDate.of(2000, 1, 1), LocalDate.of(2000, 1, 1), null, 5.0,
+                                new Client(1L, "AAA", "BBB", List.of(new Task(), new Task(), new Task(), new Task())),
                                 List.of(
                                         new Lawyer(1L, "1", "1", JobTitle.ASSOCIATE, 100.0,
                                                 new LawFirm(1L, "AAA", null, null),
@@ -131,7 +143,9 @@ class LawFirmMapperImplTest {
         return Stream.of(
                 Arguments.of(null, Collections.emptyList()),
                 Arguments.of(
-                        List.of(new LawFirm(1L, "AAA", LocalDate.of(2000, 1, 1),
+                        List.of(new Task(1L, "Make draft", "ASP", TaskPriority.HIGH, TaskStatus.ACCEPTED,
+                                        LocalDate.of(2000, 1, 1), LocalDate.of(2000, 1, 1), null, 5.0,
+                                        new Client(1L, "AAA", "BBB", List.of(new Task(), new Task(), new Task(), new Task())),
                                         List.of(
                                                 new Lawyer(1L, "1", "1", JobTitle.ASSOCIATE, 100.0,
                                                         new LawFirm(1L, "AAA", null, null),
@@ -143,13 +157,19 @@ class LawFirmMapperImplTest {
                                                         null)
                                         )
                                 )
+
                         ),
-                        List.of(new LawFirmDto(1L, "AAA", LocalDate.of(2000, 1, 1),
+                        List.of(
+                                new TaskDto(1L, "Make draft", "ASP", TaskPriority.HIGH, TaskStatus.ACCEPTED,
+                                        LocalDate.of(2000, 1, 1), LocalDate.of(2000, 1, 1), null, 5.0,
+                                        new ClientDto(1L, "AAA", "BBB", List.of(new SimpleTaskDto(), new SimpleTaskDto(), new SimpleTaskDto(), new SimpleTaskDto())),
                                         List.of(
-                                                new SimpleLawyerDto(1L, "1", "1", JobTitle.ASSOCIATE, 100.0,
+                                                new LawyerDto(1L, "1", "1", JobTitle.ASSOCIATE, 100.0,
+                                                        new LawFirmDto(1L, "AAA", null, null),
                                                         new ContactDetailsDto(1L, "1", "777", "777", "777", "test@mail.com"),
                                                         List.of(new TaskDto(), new TaskDto(), new TaskDto())),
-                                                new SimpleLawyerDto(2L, "2", "1", JobTitle.PARTNER, 200.0,
+                                                new LawyerDto(2L, "2", "1", JobTitle.PARTNER, 200.0,
+                                                        new LawFirmDto(1L, "BBB", null, null),
                                                         null,
                                                         null)
                                         )
@@ -163,18 +183,26 @@ class LawFirmMapperImplTest {
         return Stream.of(
                 Arguments.of(null, Collections.emptyList()),
                 Arguments.of(
-                        List.of(new LawFirmDto(1L, "AAA", LocalDate.of(2000, 1, 1),
+                        List.of(
+                                new TaskDto(1L, "Make draft", "ASP", TaskPriority.HIGH, TaskStatus.ACCEPTED,
+                                        LocalDate.of(2000, 1, 1), LocalDate.of(2000, 1, 1), null, 5.0,
+                                        new ClientDto(1L, "AAA", "BBB", List.of(new SimpleTaskDto(), new SimpleTaskDto(), new SimpleTaskDto(), new SimpleTaskDto())),
                                         List.of(
-                                                new SimpleLawyerDto(1L, "1", "1", JobTitle.ASSOCIATE, 100.0,
+                                                new LawyerDto(1L, "1", "1", JobTitle.ASSOCIATE, 100.0,
+                                                        new LawFirmDto(1L, "AAA", null, null),
                                                         new ContactDetailsDto(1L, "1", "777", "777", "777", "test@mail.com"),
                                                         List.of(new TaskDto(), new TaskDto(), new TaskDto())),
-                                                new SimpleLawyerDto(2L, "2", "1", JobTitle.PARTNER, 200.0,
+                                                new LawyerDto(2L, "2", "1", JobTitle.PARTNER, 200.0,
+                                                        new LawFirmDto(1L, "BBB", null, null),
                                                         null,
                                                         null)
                                         )
                                 )
                         ),
-                        List.of(new LawFirm(1L, "AAA", LocalDate.of(2000, 1, 1),
+                        List.of(
+                                new Task(1L, "Make draft", "ASP", TaskPriority.HIGH, TaskStatus.ACCEPTED,
+                                        LocalDate.of(2000, 1, 1), LocalDate.of(2000, 1, 1), null, 5.0,
+                                        new Client(1L, "AAA", "BBB", List.of(new Task(), new Task(), new Task(), new Task())),
                                         List.of(
                                                 new Lawyer(1L, "1", "1", JobTitle.ASSOCIATE, 100.0,
                                                         new LawFirm(1L, "AAA", null, null),
@@ -190,4 +218,5 @@ class LawFirmMapperImplTest {
                 )
         );
     }
+
 }
