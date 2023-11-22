@@ -1,6 +1,7 @@
 package com.mogilan.servlet.dto;
 
 import java.util.List;
+import java.util.Objects;
 
 public class SimpleLawyerDto {
 
@@ -79,5 +80,18 @@ public class SimpleLawyerDto {
 
     public void setTasks(List<TaskDto> tasks) {
         this.tasks = tasks;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        SimpleLawyerDto that = (SimpleLawyerDto) o;
+        return Double.compare(that.getHourlyRate(), getHourlyRate()) == 0 && Objects.equals(getId(), that.getId()) && Objects.equals(getFirstName(), that.getFirstName()) && Objects.equals(getLastName(), that.getLastName()) && getJobTitle() == that.getJobTitle();
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId(), getFirstName(), getLastName(), getJobTitle(), getHourlyRate());
     }
 }

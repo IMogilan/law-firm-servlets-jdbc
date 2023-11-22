@@ -2,6 +2,7 @@ package com.mogilan.servlet.dto;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 
 public class SimpleTaskDto {
     private Long id;
@@ -109,5 +110,18 @@ public class SimpleTaskDto {
 
     public void setLawyers(List<LawyerDto> lawyers) {
         this.lawyers = lawyers;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        SimpleTaskDto that = (SimpleTaskDto) o;
+        return Double.compare(that.getHoursSpentOnTask(), getHoursSpentOnTask()) == 0 && Objects.equals(getId(), that.getId()) && Objects.equals(getTitle(), that.getTitle()) && Objects.equals(getDescription(), that.getDescription()) && getPriority() == that.getPriority() && getStatus() == that.getStatus() && Objects.equals(getReceiptDate(), that.getReceiptDate()) && Objects.equals(getDueDate(), that.getDueDate()) && Objects.equals(getCompletionDate(), that.getCompletionDate());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId(), getTitle(), getDescription(), getPriority(), getStatus(), getReceiptDate(), getDueDate(), getCompletionDate(), getHoursSpentOnTask());
     }
 }
