@@ -1,0 +1,12 @@
+
+DROP TABLE IF EXISTS contact_details;
+
+DROP TABLE IF EXISTS lawyers_tasks;
+
+DROP TABLE IF EXISTS lawyers;
+
+DROP TABLE IF EXISTS law_firms;
+
+DROP TABLE IF EXISTS tasks;
+
+DROP TABLE IF EXISTS clients;
