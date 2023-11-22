@@ -5,8 +5,7 @@ import com.mogilan.model.Lawyer;
 import com.mogilan.repository.TaskDao;
 import com.mogilan.model.Task;
 import com.mogilan.exception.DaoException;
-import com.mogilan.repository.mapper.impl.TaskResultSetMapperImpl;
-import com.mogilan.db.impl.ConnectionPoolImpl;
+import com.mogilan.repository.mapper.TaskResultSetMapper;
 
 import java.sql.*;
 import java.sql.Date;
@@ -81,9 +80,9 @@ public class TaskDaoImpl implements TaskDao {
             """;
 
     private final ConnectionPool connectionPool;
-    private final TaskResultSetMapperImpl resultSetMapper;
+    private final TaskResultSetMapper resultSetMapper;
 
-    public TaskDaoImpl(ConnectionPool connectionPool, TaskResultSetMapperImpl resultSetMapper) {
+    public TaskDaoImpl(ConnectionPool connectionPool, TaskResultSetMapper resultSetMapper) {
         this.connectionPool = connectionPool;
         this.resultSetMapper = resultSetMapper;
     }

@@ -23,14 +23,18 @@ public class Task {
     public Task() {
     }
 
-    public Task(String title, String description, TaskPriority priority, TaskStatus status, LocalDate receiptDate, LocalDate dueDate, Client client) {
+    public Task(String title, String description, TaskPriority priority, TaskStatus status, LocalDate receiptDate,
+                LocalDate dueDate, LocalDate completionDate, double hoursSpentOnTask, Client client, List<Lawyer> lawyers) {
         this.title = title;
         this.description = description;
         this.priority = priority;
         this.status = status;
         this.receiptDate = receiptDate;
         this.dueDate = dueDate;
+        this.completionDate = completionDate;
+        this.hoursSpentOnTask = hoursSpentOnTask;
         this.client = client;
+        this.lawyers = lawyers;
     }
 
     public Task(Long id, String title, String description, TaskPriority priority, TaskStatus status, LocalDate receiptDate, LocalDate dueDate, LocalDate completionDate, double hoursSpentOnTask, Client client, List<Lawyer> lawyers) {

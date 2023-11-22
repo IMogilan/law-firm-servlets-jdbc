@@ -11,6 +11,7 @@ import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class TaskResultSetMapperImpl implements TaskResultSetMapper {
@@ -27,8 +28,7 @@ public class TaskResultSetMapperImpl implements TaskResultSetMapper {
                 if (lawyer != null) {
                     task.getLawyers().add(lawyer);
                 }
-            }
-            while (resultSet.next());
+            } while (resultSet.next());
             return task;
         } catch (SQLException e) {
             throw new DaoException(e);
@@ -37,30 +37,27 @@ public class TaskResultSetMapperImpl implements TaskResultSetMapper {
 
     @Override
     public List<Task> toTaskList(ResultSet resultSet) throws SQLException {
-        List<Task> tasks = new ArrayList<>();
-        long prevTaskId = 0L;
+        HashMap<Long, Task> tasksMap = new HashMap<>();
         while (resultSet.next()) {
             try {
                 var taskId = resultSet.getLong("id");
 
-                if (taskId != prevTaskId) {
-                    prevTaskId = taskId;
+                if (!tasksMap.containsKey(taskId)) {
 
                     Task task = getTask(resultSet);
-                    tasks.add(task);
+                    tasksMap.put(taskId, task);
                 }
-                var currentTask = tasks.get(tasks.size() - 1);
+                var currentTask = tasksMap.get(taskId);
 
                 Lawyer lawyer = getLawyer(resultSet, currentTask);
                 if (lawyer != null) {
                     currentTask.getLawyers().add(lawyer);
                 }
-
             } catch (SQLException e) {
                 throw new DaoException(e);
             }
         }
-        return tasks;
+        return new ArrayList<>(tasksMap.values());
     }
 
     private static Task getTask(ResultSet resultSet) throws SQLException {

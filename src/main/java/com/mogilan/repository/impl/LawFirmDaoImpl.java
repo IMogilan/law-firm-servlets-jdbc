@@ -5,8 +5,6 @@ import com.mogilan.repository.LawFirmDao;
 import com.mogilan.model.LawFirm;
 import com.mogilan.exception.DaoException;
 import com.mogilan.repository.mapper.LawFirmResultSetMapper;
-import com.mogilan.repository.mapper.impl.LawFirmResultSetMapperImpl;
-import com.mogilan.db.impl.ConnectionPoolImpl;
 
 import java.sql.*;
 import java.util.ArrayList;
