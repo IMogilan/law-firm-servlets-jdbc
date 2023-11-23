@@ -4,16 +4,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.mogilan.context.ApplicationContext;
-import com.mogilan.db.impl.ConnectionPoolImpl;
 import com.mogilan.exception.PathVariableException;
 import com.mogilan.exception.handler.ServletExceptionHandler;
-import com.mogilan.exception.handler.impl.ServletExceptionHandlerImpl;
-import com.mogilan.repository.impl.*;
-import com.mogilan.repository.mapper.impl.*;
 import com.mogilan.service.ClientService;
-import com.mogilan.service.impl.*;
 import com.mogilan.servlet.dto.ClientDto;
-import com.mogilan.servlet.mapper.impl.*;
 import com.mogilan.util.ServletsUtil;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
@@ -37,14 +31,6 @@ public class ClientServlet extends HttpServlet {
         registerDependencies(config);
         objectMapper.registerModule(new JavaTimeModule());
         objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
-    }
-
-    private void registerDependencies(ServletConfig config) {
-        var applicationContext = (ApplicationContext) config.getServletContext().getAttribute("applicationContext");
-        this.objectMapper = (ObjectMapper) applicationContext.getDependency("objectMapper");
-        this.exceptionHandler = (ServletExceptionHandler) applicationContext.getDependency("servletExceptionHandler");
-
-        this.clientService = (ClientService) applicationContext.getDependency("clientService");
     }
 
     @Override
@@ -106,6 +92,14 @@ public class ClientServlet extends HttpServlet {
         } catch (Exception e) {
             exceptionHandler.handleException(resp, e);
         }
+    }
+
+    private void registerDependencies(ServletConfig config) {
+        var applicationContext = (ApplicationContext) config.getServletContext().getAttribute(ServletsUtil.APPLICATION_CONTEXT_KEY);
+        this.objectMapper = (ObjectMapper) applicationContext.getDependency(ServletsUtil.OBJECT_MAPPER_KEY);
+        this.exceptionHandler = (ServletExceptionHandler) applicationContext.getDependency(ServletsUtil.SERVLET_EXCEPTION_HANDLER_KEY);
+
+        this.clientService = (ClientService) applicationContext.getDependency(ServletsUtil.CLIENT_SERVICE_KEY);
     }
 
     private <T> T readRequestJson(HttpServletRequest req, Class<T> valueType) throws IOException {

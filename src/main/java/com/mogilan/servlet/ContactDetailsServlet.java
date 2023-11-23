@@ -25,20 +25,12 @@ public class ContactDetailsServlet extends HttpServlet {
     private ContactDetailsService contactDetailsService;
     private ServletExceptionHandler exceptionHandler;
     private ObjectMapper objectMapper;
-
     @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
         registerDependencies(config);
         objectMapper.registerModule(new JavaTimeModule());
         objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
-    }
-
-    private void registerDependencies(ServletConfig config) {
-        var applicationContext = (ApplicationContext) config.getServletContext().getAttribute("applicationContext");
-        this.objectMapper = (ObjectMapper) applicationContext.getDependency("objectMapper");
-        this.exceptionHandler = (ServletExceptionHandler) applicationContext.getDependency("servletExceptionHandler");
-        this.contactDetailsService = (ContactDetailsService) applicationContext.getDependency("contactDetailsService");
     }
 
     @Override
@@ -100,6 +92,14 @@ public class ContactDetailsServlet extends HttpServlet {
         } catch (Exception e) {
             exceptionHandler.handleException(resp, e);
         }
+    }
+
+    private void registerDependencies(ServletConfig config) {
+        var applicationContext = (ApplicationContext) config.getServletContext().getAttribute(ServletsUtil.APPLICATION_CONTEXT_KEY);
+        this.objectMapper = (ObjectMapper) applicationContext.getDependency(ServletsUtil.OBJECT_MAPPER_KEY);
+        this.exceptionHandler = (ServletExceptionHandler) applicationContext.getDependency(ServletsUtil.SERVLET_EXCEPTION_HANDLER_KEY);
+
+        this.contactDetailsService = (ContactDetailsService) applicationContext.getDependency(ServletsUtil.CONTACT_DETAILS_SERVICE_KEY);
     }
 
     private <T> T readRequestJson(HttpServletRequest req, Class<T> valueType) throws IOException {

@@ -36,13 +36,6 @@ public class LawFirmServlet extends HttpServlet {
         objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
     }
 
-    private void registerDependencies(ServletConfig config) {
-        var applicationContext = (ApplicationContext) config.getServletContext().getAttribute("applicationContext");
-        this.objectMapper = (ObjectMapper) applicationContext.getDependency("objectMapper");
-        this.exceptionHandler = (ServletExceptionHandler) applicationContext.getDependency("servletExceptionHandler");
-        this.lawFirmService = (LawFirmService) applicationContext.getDependency("lawFirmService");
-    }
-
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
         try {
@@ -102,6 +95,14 @@ public class LawFirmServlet extends HttpServlet {
         } catch (Exception e) {
             exceptionHandler.handleException(resp, e);
         }
+    }
+
+    private void registerDependencies(ServletConfig config) {
+        var applicationContext = (ApplicationContext) config.getServletContext().getAttribute(ServletsUtil.APPLICATION_CONTEXT_KEY);
+        this.objectMapper = (ObjectMapper) applicationContext.getDependency(ServletsUtil.OBJECT_MAPPER_KEY);
+        this.exceptionHandler = (ServletExceptionHandler) applicationContext.getDependency(ServletsUtil.SERVLET_EXCEPTION_HANDLER_KEY);
+
+        this.lawFirmService = (LawFirmService) applicationContext.getDependency(ServletsUtil.LAW_FIRM_SERVICE_KEY);
     }
 
     private <T> T readRequestJson(HttpServletRequest req, Class<T> valueType) throws IOException {

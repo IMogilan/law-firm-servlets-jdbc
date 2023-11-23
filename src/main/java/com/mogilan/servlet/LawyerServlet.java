@@ -45,14 +45,6 @@ public class LawyerServlet extends HttpServlet {
         objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
     }
 
-    private void registerDependencies(ServletConfig config) {
-        var applicationContext = (ApplicationContext) config.getServletContext().getAttribute("applicationContext");
-        this.objectMapper = (ObjectMapper) applicationContext.getDependency("objectMapper");
-        this.exceptionHandler = (ServletExceptionHandler) applicationContext.getDependency("servletExceptionHandler");
-        this.lawyerService = (LawyerService) applicationContext.getDependency("lawyerService");
-        this.taskService = (TaskService) applicationContext.getDependency("taskService");
-    }
-
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
         try {
@@ -202,6 +194,15 @@ public class LawyerServlet extends HttpServlet {
         } else {
             throw new PathVariableException(ServletsUtil.PATH_VARIABLE_IS_NOT_CORRECT_MESSAGE);
         }
+    }
+
+    private void registerDependencies(ServletConfig config) {
+        var applicationContext = (ApplicationContext) config.getServletContext().getAttribute(ServletsUtil.APPLICATION_CONTEXT_KEY);
+        this.objectMapper = (ObjectMapper) applicationContext.getDependency(ServletsUtil.OBJECT_MAPPER_KEY);
+        this.exceptionHandler = (ServletExceptionHandler) applicationContext.getDependency(ServletsUtil.SERVLET_EXCEPTION_HANDLER_KEY);
+
+        this.lawyerService = (LawyerService) applicationContext.getDependency(ServletsUtil.LAWYER_SERVICE_KEY);
+        this.taskService = (TaskService) applicationContext.getDependency(ServletsUtil.TASK_SERVICE_KEY);
     }
 
     private <T> T readRequestJson(HttpServletRequest req, Class<T> valueType) throws IOException {

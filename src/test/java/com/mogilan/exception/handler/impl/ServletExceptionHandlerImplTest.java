@@ -36,8 +36,6 @@ class ServletExceptionHandlerImplTest {
     ArgumentCaptor<String> stringCaptor;
     @Captor
     ArgumentCaptor<Integer> integerCaptor;
-    @Captor
-    ArgumentCaptor<PrintWriter> printWriterCaptor;
     ServletExceptionHandlerImpl servletExceptionHandler;
 
     @BeforeEach
