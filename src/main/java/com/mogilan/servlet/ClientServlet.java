@@ -25,6 +25,15 @@ public class ClientServlet extends HttpServlet {
     private ServletExceptionHandler exceptionHandler;
     private ObjectMapper objectMapper;
 
+    public ClientServlet() {
+    }
+
+    public ClientServlet(ClientService clientService, ServletExceptionHandler exceptionHandler, ObjectMapper objectMapper) {
+        this.clientService = clientService;
+        this.exceptionHandler = exceptionHandler;
+        this.objectMapper = objectMapper;
+    }
+
     @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);

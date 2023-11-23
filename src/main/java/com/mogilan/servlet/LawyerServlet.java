@@ -37,6 +37,17 @@ public class LawyerServlet extends HttpServlet {
     private static final String REGEX_FOR_SUB_RESOURCES_1 = "\\/(\\d+)\\/tasks\\/";
     private static final String REGEX_FOR_SUB_RESOURCES_2 = "\\/(\\d+)\\/tasks\\/(\\d*)";
 
+
+    public LawyerServlet() {
+    }
+
+    public LawyerServlet(LawyerService lawyerService, TaskService taskService, ServletExceptionHandler exceptionHandler, ObjectMapper objectMapper) {
+        this.lawyerService = lawyerService;
+        this.taskService = taskService;
+        this.exceptionHandler = exceptionHandler;
+        this.objectMapper = objectMapper;
+    }
+
     @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);

@@ -33,6 +33,15 @@ public class ContactDetailsServlet extends HttpServlet {
         objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
     }
 
+    public ContactDetailsServlet() {
+    }
+
+    public ContactDetailsServlet(ContactDetailsService contactDetailsService, ServletExceptionHandler exceptionHandler, ObjectMapper objectMapper) {
+        this.contactDetailsService = contactDetailsService;
+        this.exceptionHandler = exceptionHandler;
+        this.objectMapper = objectMapper;
+    }
+
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
         try {

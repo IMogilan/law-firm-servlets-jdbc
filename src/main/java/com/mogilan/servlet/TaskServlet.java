@@ -36,6 +36,16 @@ public class TaskServlet extends HttpServlet {
     private static final String REGEX_FOR_SUB_RESOURCES_1 = "\\/(\\d+)\\/lawyers\\/";
     private static final String REGEX_FOR_SUB_RESOURCES_2 = "\\/(\\d+)\\/lawyers\\/(\\d*)";
 
+    public TaskServlet() {
+    }
+
+    public TaskServlet(TaskService taskService, LawyerService lawyerService, ServletExceptionHandler exceptionHandler, ObjectMapper objectMapper) {
+        this.taskService = taskService;
+        this.lawyerService = lawyerService;
+        this.exceptionHandler = exceptionHandler;
+        this.objectMapper = objectMapper;
+    }
+
     @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);

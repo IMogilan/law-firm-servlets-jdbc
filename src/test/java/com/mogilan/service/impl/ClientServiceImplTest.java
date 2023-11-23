@@ -41,8 +41,6 @@ class ClientServiceImplTest {
     ClientMapper clientMapper;
     @Captor
     ArgumentCaptor<Client> captor;
-    @Captor
-    ArgumentCaptor<TaskDto> taskDtoArgumentCaptor;
     ClientService clientService;
 
 

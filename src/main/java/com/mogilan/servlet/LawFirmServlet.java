@@ -28,6 +28,15 @@ public class LawFirmServlet extends HttpServlet {
     private ServletExceptionHandler exceptionHandler;
     private ObjectMapper objectMapper;
 
+    public LawFirmServlet() {
+    }
+
+    public LawFirmServlet(LawFirmService lawFirmService, ServletExceptionHandler exceptionHandler, ObjectMapper objectMapper) {
+        this.lawFirmService = lawFirmService;
+        this.exceptionHandler = exceptionHandler;
+        this.objectMapper = objectMapper;
+    }
+
     @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
