@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.mogilan.context.ApplicationContext;
 import com.mogilan.exception.EntityNotFoundException;
 import com.mogilan.exception.handler.ServletExceptionHandler;
-import com.mogilan.model.*;
 import com.mogilan.service.LawyerService;
 import com.mogilan.service.TaskService;
 import com.mogilan.servlet.dto.*;
