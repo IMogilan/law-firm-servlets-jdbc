@@ -71,6 +71,11 @@ class TaskServletTest {
     ArgumentCaptor<List<TaskDto>> listArgumentCaptor;
     @Captor
     ArgumentCaptor<TaskDto> dtoArgumentCaptor;
+
+    @Captor
+    ArgumentCaptor<List<LawyerDto>> subResourcesListArgumentCaptor;
+    @Captor
+    ArgumentCaptor<LawyerDto> subResourcesDtoArgumentCaptor;
     TaskServlet taskServlet;
 
     @BeforeEach
@@ -295,7 +300,7 @@ class TaskServletTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"/","1/", "/1/", "//1"})
+    @ValueSource(strings = {"/", "1/", "/1/", "//1"})
     void doPutRedirectToExceptionHandlerIfPathIncorrect(String pathInfo) throws IOException {
         doReturn(pathInfo).when(req).getPathInfo();
 
@@ -344,8 +349,9 @@ class TaskServletTest {
 
         verify(exceptionHandler).handleException(any(), any());
     }
+
     @ParameterizedTest
-    @ValueSource(strings = {"/","1/", "/1/", "//1"})
+    @ValueSource(strings = {"/", "1/", "/1/", "//1"})
     void doDeleteRedirectToExceptionHandlerIfPathIncorrect(String pathInfo) throws IOException {
         doReturn(pathInfo).when(req).getPathInfo();
 
@@ -353,6 +359,296 @@ class TaskServletTest {
 
         verify(exceptionHandler).handleException(any(), any());
     }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // SubResources
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    @ParameterizedTest
+    @ValueSource(longs = {1L, 10L, 100L})
+    void doGetSubResourcesSuccessWhenDtoListNotEmpty(Long mainResourceId) throws IOException {
+        String pathInfo = "/" + mainResourceId + "/lawyers/";
+        doReturn(pathInfo).when(req).getPathInfo();
+
+        var dtoList = getSubResourcesDtoList();
+        assertThat(dtoList).isNotEmpty();
+        doReturn(dtoList).when(lawyerService).readAllByTaskId(mainResourceId);
+
+        doReturn(printWriter).when(resp).getWriter();
+
+        taskServlet.doGet(req, resp);
+
+        verify(resp, times(1)).setContentType(stringCaptor.capture());
+        assertThat(stringCaptor.getValue()).isEqualTo("application/json");
+
+        verify(resp, times(1)).setCharacterEncoding(stringCaptor.capture());
+        assertThat(stringCaptor.getValue()).isEqualTo(StandardCharsets.UTF_8.name());
+
+        verify(resp, times(1)).setStatus(integerCaptor.capture());
+        assertThat(integerCaptor.getValue()).isEqualTo(HttpServletResponse.SC_OK);
+
+        verify(resp, times(1)).getWriter();
+        verify(objectMapper, times(1)).writeValue(any(PrintWriter.class), subResourcesListArgumentCaptor.capture());
+        assertThat(subResourcesListArgumentCaptor.getValue()).isEqualTo(dtoList);
+    }
+
+    @ParameterizedTest
+    @ValueSource(longs = {1L, 10L, 100L})
+    void doGetSubResourcesWhenDtoListIsEmpty(Long mainResourceId) throws IOException {
+        String pathInfo = "/" + mainResourceId + "/lawyers/";
+        doReturn(pathInfo).when(req).getPathInfo();
+
+        var dtoList = Collections.emptyList();
+        assertThat(dtoList).isEmpty();
+        doReturn(dtoList).when(lawyerService).readAllByTaskId(mainResourceId);
+
+        doReturn(printWriter).when(resp).getWriter();
+
+        taskServlet.doGet(req, resp);
+
+        verify(resp, times(1)).setContentType(stringCaptor.capture());
+        assertThat(stringCaptor.getValue()).isEqualTo("application/json");
+
+        verify(resp, times(1)).setCharacterEncoding(stringCaptor.capture());
+        assertThat(stringCaptor.getValue()).isEqualTo(StandardCharsets.UTF_8.name());
+
+        verify(resp, times(1)).setStatus(integerCaptor.capture());
+        assertThat(integerCaptor.getValue()).isEqualTo(HttpServletResponse.SC_NO_CONTENT);
+
+        verify(resp, times(1)).getWriter();
+        verify(objectMapper, times(1)).writeValue(any(PrintWriter.class), subResourcesListArgumentCaptor.capture());
+        assertThat(subResourcesListArgumentCaptor.getValue()).isEqualTo(dtoList);
+    }
+
+    @ParameterizedTest
+    @ValueSource(longs = {1L, 10L, 100L})
+    void doGetSubResourcesSuccessWhenDtoPresent(Long id) throws IOException {
+        Long mainResourceId = id;
+        Long subResourceId = id;
+        var pathInfo = "/%d/lawyers/%d".formatted(mainResourceId, subResourceId);
+        doReturn(pathInfo).when(req).getPathInfo();
+
+        var dto = getSubResourcesDto();
+        doReturn(true).when(taskService).isLawyerResponsibleForTask(id, id);
+        doReturn(dto).when(lawyerService).readById(subResourceId);
+
+        doReturn(printWriter).when(resp).getWriter();
+
+        taskServlet.doGet(req, resp);
+
+        verify(resp, times(1)).setContentType(stringCaptor.capture());
+        assertThat(stringCaptor.getValue()).isEqualTo("application/json");
+
+        verify(resp, times(1)).setCharacterEncoding(stringCaptor.capture());
+        assertThat(stringCaptor.getValue()).isEqualTo(StandardCharsets.UTF_8.name());
+
+        verify(resp, times(1)).setStatus(integerCaptor.capture());
+        assertThat(integerCaptor.getValue()).isEqualTo(HttpServletResponse.SC_OK);
+
+        verify(resp, times(1)).getWriter();
+        verify(objectMapper, times(1)).writeValue(any(PrintWriter.class), subResourcesDtoArgumentCaptor.capture());
+        assertThat(subResourcesDtoArgumentCaptor.getValue()).isEqualTo(dto);
+    }
+
+    @ParameterizedTest
+    @ValueSource(longs = {1L, 10L, 100L})
+    void doGetSubResourcesRedirectToExceptionHandlerWhenDtoIsNotPresent(Long id) throws IOException {
+        Long mainResourceId = id;
+        Long subResourceId = id;
+        var pathInfo = "/%d/lawyers/%d".formatted(mainResourceId, subResourceId);
+        doReturn(true).when(taskService).isLawyerResponsibleForTask(id, id);
+        doReturn(pathInfo).when(req).getPathInfo();
+
+        doThrow(new EntityNotFoundException("Any message")).when(lawyerService).readById(id);
+
+        taskServlet.doGet(req, resp);
+
+        verify(exceptionHandler).handleException(any(), any());
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"1/", "/1/", "//1", "lawyers/1", "lawyers/1/1"})
+    void doGetSubResourcesRedirectToExceptionHandlerIfPathIncorrect(String pathInfo) throws IOException {
+        doReturn(pathInfo).when(req).getPathInfo();
+
+        taskServlet.doGet(req, resp);
+
+        verify(exceptionHandler).handleException(any(), any());
+    }
+
+    @ParameterizedTest
+    @ValueSource(longs = {1L, 10L, 100L})
+    void doPostSubResourcesSuccess(Long mainResourceId) throws IOException {
+        String pathInfo = "/" + mainResourceId + "/lawyers/";
+        doReturn(pathInfo).when(req).getPathInfo();
+
+        doReturn(reader).when(req).getReader();
+
+        var dto = getSubResourcesDto();
+        doReturn(dto).when(objectMapper).readValue(reader, LawyerDto.class);
+        var dtoWithId = getSubResourcesDtoWithId();
+        doReturn(dtoWithId).when(lawyerService).create(dto);
+
+        doReturn(printWriter).when(resp).getWriter();
+
+        taskServlet.doPost(req, resp);
+
+        verify(resp, times(1)).setContentType(stringCaptor.capture());
+        assertThat(stringCaptor.getValue()).isEqualTo("application/json");
+
+        verify(resp, times(1)).setCharacterEncoding(stringCaptor.capture());
+        assertThat(stringCaptor.getValue()).isEqualTo(StandardCharsets.UTF_8.name());
+
+        verify(resp, times(1)).setStatus(integerCaptor.capture());
+        assertThat(integerCaptor.getValue()).isEqualTo(HttpServletResponse.SC_CREATED);
+
+        verify(resp, times(1)).getWriter();
+        verify(objectMapper, times(1)).writeValue(any(PrintWriter.class), subResourcesDtoArgumentCaptor.capture());
+        assertThat(subResourcesDtoArgumentCaptor.getValue()).isEqualTo(dtoWithId);
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"1/", "/1/", "//1", "lawyers/1", "lawyers/1/1"})
+    void doPostSubResourcesRedirectToExceptionHandlerIfPathIncorrect(String pathInfo) throws IOException {
+        doReturn(pathInfo).when(req).getPathInfo();
+
+        taskServlet.doPost(req, resp);
+
+        verify(exceptionHandler).handleException(any(), any());
+    }
+
+    @ParameterizedTest
+    @ValueSource(longs = {1L, 10L, 100L})
+    void doPutSubResourcesSuccessWhenDtoPresent(Long id) throws IOException {
+        Long mainResourceId = id;
+        Long subResourceId = id;
+        var pathInfo = "/%d/lawyers/%d".formatted(mainResourceId, subResourceId);
+        doReturn(pathInfo).when(req).getPathInfo();
+
+        doReturn(reader).when(req).getReader();
+
+        doReturn(true).when(taskService).isLawyerResponsibleForTask(id, id);
+
+        var dto = getSubResourcesDto();
+        doReturn(dto).when(objectMapper).readValue(reader, LawyerDto.class);
+        doNothing().when(lawyerService).update(id, dto);
+        doReturn(printWriter).when(resp).getWriter();
+
+        taskServlet.doPut(req, resp);
+
+        verify(resp, times(1)).setContentType(stringCaptor.capture());
+        assertThat(stringCaptor.getValue()).isEqualTo("application/json");
+
+        verify(resp, times(1)).setCharacterEncoding(stringCaptor.capture());
+        assertThat(stringCaptor.getValue()).isEqualTo(StandardCharsets.UTF_8.name());
+
+        verify(resp, times(1)).setStatus(integerCaptor.capture());
+        assertThat(integerCaptor.getValue()).isEqualTo(HttpServletResponse.SC_OK);
+
+        verify(lawyerService, times(1)).update(longCaptor.capture(), subResourcesDtoArgumentCaptor.capture());
+        assertThat(longCaptor.getValue()).isEqualTo(id);
+        assertThat(subResourcesDtoArgumentCaptor.getValue()).isEqualTo(dto);
+
+        verify(resp, times(1)).getWriter();
+        verify(objectMapper, times(1)).writeValue(any(PrintWriter.class), stringCaptor.capture());
+        assertThat(stringCaptor.getValue()).isEqualTo(ServletsUtil.UPDATED_MESSAGE);
+    }
+
+    @ParameterizedTest
+    @ValueSource(longs = {1L, 10L, 100L})
+    void doPutSubResourcesRedirectToExceptionHandlerWhenDtoIsNotPresent(Long id) throws IOException {
+        Long mainResourceId = id;
+        Long subResourceId = id;
+        var pathInfo = "/%d/lawyers/%d".formatted(mainResourceId, subResourceId);
+        doReturn(pathInfo).when(req).getPathInfo();
+
+        doReturn(reader).when(req).getReader();
+
+        doReturn(true).when(taskService).isLawyerResponsibleForTask(id, id);
+
+        var dto = getSubResourcesDto();
+        doReturn(dto).when(objectMapper).readValue(reader, LawyerDto.class);
+        doThrow(new EntityNotFoundException("Any Message")).when(lawyerService).update(id, dto);
+
+        taskServlet.doPut(req, resp);
+        verify(lawyerService, times(1)).update(longCaptor.capture(), subResourcesDtoArgumentCaptor.capture());
+        assertThat(longCaptor.getValue()).isEqualTo(id);
+        assertThat(subResourcesDtoArgumentCaptor.getValue()).isEqualTo(dto);
+
+        verify(exceptionHandler).handleException(any(), any());
+    }
+    @ParameterizedTest
+    @ValueSource(strings = {"1/", "/1/", "//1", "lawyers/1", "lawyers/1/1"})
+    void doPutSubResourcesRedirectToExceptionHandlerIfPathIncorrect(String pathInfo) throws IOException {
+        doReturn(pathInfo).when(req).getPathInfo();
+
+        taskServlet.doPut(req, resp);
+
+        verify(exceptionHandler).handleException(any(), any());
+    }
+
+    @ParameterizedTest
+    @ValueSource(longs = {1L, 10L, 100L})
+    void doDeleteSubResourcesSuccessWhenDtoPresent(Long id) throws IOException {
+        Long mainResourceId = id;
+        Long subResourceId = id;
+        var pathInfo = "/%d/lawyers/%d".formatted(mainResourceId, subResourceId);
+        doReturn(pathInfo).when(req).getPathInfo();
+
+        doReturn(true).when(taskService).isLawyerResponsibleForTask(id, id);
+
+        doNothing().when(lawyerService).deleteById(id);
+
+        doReturn(printWriter).when(resp).getWriter();
+
+        taskServlet.doDelete(req, resp);
+
+        verify(resp, times(1)).setContentType(stringCaptor.capture());
+        assertThat(stringCaptor.getValue()).isEqualTo("application/json");
+
+        verify(resp, times(1)).setCharacterEncoding(stringCaptor.capture());
+        assertThat(stringCaptor.getValue()).isEqualTo(StandardCharsets.UTF_8.name());
+
+        verify(resp, times(1)).setStatus(integerCaptor.capture());
+        assertThat(integerCaptor.getValue()).isEqualTo(HttpServletResponse.SC_OK);
+
+        verify(lawyerService, times(1)).deleteById(id);
+
+        verify(resp, times(1)).getWriter();
+        verify(objectMapper, times(1)).writeValue(any(PrintWriter.class), stringCaptor.capture());
+        assertThat(stringCaptor.getValue()).isEqualTo(ServletsUtil.DELETED_MESSAGE);
+    }
+
+    @ParameterizedTest
+    @ValueSource(longs = {1L, 10L, 100L})
+    void doDeleteSubResourcesRedirectToExceptionHandlerWhenDtoIsNotPresent(Long id) throws IOException {
+        Long mainResourceId = id;
+        Long subResourceId = id;
+        var pathInfo = "/%d/lawyers/%d".formatted(mainResourceId, subResourceId);
+        doReturn(pathInfo).when(req).getPathInfo();
+
+        doReturn(true).when(taskService).isLawyerResponsibleForTask(id, id);
+
+        doThrow(new EntityNotFoundException("Any Message")).when(lawyerService).deleteById(id);
+
+        taskServlet.doDelete(req, resp);
+
+        verify(exceptionHandler).handleException(any(), any());
+    }
+    @ParameterizedTest
+    @ValueSource(strings = {"1/", "/1/", "//1", "lawyers/1", "lawyers/1/1"})
+    void doDeleteSubResourcesRedirectToExceptionHandlerIfPathIncorrect(String pathInfo) throws IOException {
+        doReturn(pathInfo).when(req).getPathInfo();
+
+        taskServlet.doDelete(req, resp);
+
+        verify(exceptionHandler).handleException(any(), any());
+    }
+
+
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // SubResources
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     private TaskDto getDto() {
         return new TaskDto("Make draft", "ASP", TaskPriority.HIGH, TaskStatus.ACCEPTED,
@@ -390,5 +686,23 @@ class TaskServletTest {
 
     private List<TaskDto> getDtoList() {
         return List.of(getDtoWithId(), getDtoWithId(), getDtoWithId(), getDtoWithId(), getDtoWithId());
+    }
+
+    private LawyerDto getSubResourcesDto() {
+        return new LawyerDto("1", "1", JobTitle.ASSOCIATE, 100.0,
+                new LawFirmDto(1L, "AAA", null, null),
+                new ContactDetailsDto(1L, "1", "777", "777", "777", "test@mail.com"),
+                List.of(new TaskDto(), new TaskDto(), new TaskDto()));
+    }
+
+    private LawyerDto getSubResourcesDtoWithId() {
+        return new LawyerDto(1L, "1", "1", JobTitle.ASSOCIATE, 100.0,
+                new LawFirmDto(1L, "AAA", null, null),
+                new ContactDetailsDto(1L, "1", "777", "777", "777", "test@mail.com"),
+                List.of(new TaskDto(), new TaskDto(), new TaskDto()));
+    }
+
+    private List<LawyerDto> getSubResourcesDtoList() {
+        return List.of(getSubResourcesDtoWithId(), getSubResourcesDtoWithId(), getSubResourcesDtoWithId(), getSubResourcesDtoWithId(), getSubResourcesDtoWithId());
     }
 }

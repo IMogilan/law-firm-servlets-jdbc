@@ -222,8 +222,8 @@ public class LawyerServlet extends HttpServlet {
         resp.setContentType("application/json");
         resp.setCharacterEncoding(StandardCharsets.UTF_8.name());
         resp.setStatus(statusCode);
-        objectMapper.registerModule(new JavaTimeModule());
-        objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+//        objectMapper.registerModule(new JavaTimeModule());
+//        objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
         try (var writer = resp.getWriter()) {
             objectMapper.writeValue(writer, dto);
         }
