@@ -18,9 +18,8 @@ public class Lawyer {
     public Lawyer() {
     }
 
-    public Lawyer(Long id, String firstName, String lastName, JobTitle jobTitle,
-                  double hourlyRate, LawFirm lawFirm, ContactDetails contacts) {
-        this.id = id;
+    public Lawyer(String firstName, String lastName, JobTitle jobTitle, double hourlyRate,
+                  LawFirm lawFirm, ContactDetails contacts) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.jobTitle = jobTitle;
@@ -29,8 +28,19 @@ public class Lawyer {
         this.contacts = contacts;
     }
 
-    public Lawyer(String firstName, String lastName, JobTitle jobTitle, double hourlyRate,
-                  LawFirm lawFirm, ContactDetails contacts) {
+    public Lawyer(String firstName, String lastName, JobTitle jobTitle, double hourlyRate, LawFirm lawFirm, ContactDetails contacts, List<Task> tasks) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.jobTitle = jobTitle;
+        this.hourlyRate = hourlyRate;
+        this.lawFirm = lawFirm;
+        this.contacts = contacts;
+        this.tasks = tasks;
+    }
+
+    public Lawyer(Long id, String firstName, String lastName, JobTitle jobTitle,
+                  double hourlyRate, LawFirm lawFirm, ContactDetails contacts) {
+        this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
         this.jobTitle = jobTitle;
