@@ -7,6 +7,10 @@
 # 4. Edit properties in application.properties file (if necessary)
 # 5. Set up and launch Tomcat 10 
 
+# HOT TO RUN TESTS
+# 1. START DOCKER
+# 2. Execute "mvn clean test" in command line 
+
 # Эндпоинт	        	        Метод	Описание
 # /api/clients/			        GET	    Получение списка всех клиентов
 # /api/clients/{id}		        GET	    Получение информации о конкретном клиенте
