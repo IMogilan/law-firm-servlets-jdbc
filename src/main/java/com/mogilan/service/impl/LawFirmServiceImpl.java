@@ -67,9 +67,10 @@ public class LawFirmServiceImpl implements LawFirmService {
             throw new EntityNotFoundException("Law firm with id = " + id + " not found");
         }
 
-        lawFirmDto.setId(id);
         var lawFirm = lawFirmMapper.toEntity(lawFirmDto);
+        lawFirm.setId(id);
         lawFirmDao.update(lawFirm);
+        lawFirmDto.setId(id);
 
         updateLawyerListOfThisLawFirm(id, lawFirmDto);
     }
@@ -87,7 +88,7 @@ public class LawFirmServiceImpl implements LawFirmService {
     public boolean existsById(Long id) {
         Objects.requireNonNull(id);
 
-        return lawFirmDao.findById(id).isEmpty();
+        return lawFirmDao.findById(id).isPresent();
     }
 
     private void createNewLawyers(List<LawyerDto> newLawyers, LawFirmDto lawFirmDto) {

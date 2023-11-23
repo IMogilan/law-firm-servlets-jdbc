@@ -24,6 +24,12 @@ public class LawFirm {
         this.companyStartDay = companyStartDay;
     }
 
+    public LawFirm(String name, LocalDate companyStartDay, List<Lawyer> lawyers) {
+        this.name = name;
+        this.companyStartDay = companyStartDay;
+        this.lawyers = lawyers;
+    }
+
     public LawFirm(Long id, String name, LocalDate companyStartDay, List<Lawyer> lawyers) {
         this.id = id;
         this.name = name;

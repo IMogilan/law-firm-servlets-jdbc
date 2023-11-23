@@ -165,20 +165,20 @@ class ContactDetailsServiceImplTest {
         Assertions.assertThrows(EntityNotFoundException.class, () -> contactDetailsService.deleteById(id));
     }
 
-    private ContactDetailsDto getDtoWithId() {
-        return new ContactDetailsDto(1L, "Address", "777", "888", "999", "test@email.com");
+    private ContactDetailsDto getDto() {
+        return new ContactDetailsDto("Address", "777", "888", "999", "test@email.com");
     }
 
-    private ContactDetails getEntityWithId() {
-        return new ContactDetails(1L, "Address", "777", "888", "999", "test@email.com");
+    private ContactDetailsDto getDtoWithId() {
+        return new ContactDetailsDto(1L, "Address", "777", "888", "999", "test@email.com");
     }
 
     private ContactDetails getEntity() {
         return new ContactDetails("Address", "777", "888", "999", "test@email.com");
     }
 
-    private ContactDetailsDto getDto() {
-        return new ContactDetailsDto("Address", "777", "888", "999", "test@email.com");
+    private ContactDetails getEntityWithId() {
+        return new ContactDetails(1L, "Address", "777", "888", "999", "test@email.com");
     }
 
     private List<ContactDetailsDto> getDtoList() {

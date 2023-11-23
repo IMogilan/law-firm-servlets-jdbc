@@ -69,9 +69,10 @@ public class ClientServiceImpl implements ClientService {
             throw new EntityNotFoundException("Client with id = " + id + " not found");
         }
 
-        clientDto.setId(id);
         var client = clientMapper.toEntity(clientDto);
+        client.setId(id);
         clientDao.update(client);
+        clientDto.setId(id);
 
         updateTaskListOfThisClient(id, clientDto);
     }

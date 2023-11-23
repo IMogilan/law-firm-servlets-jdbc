@@ -1,11 +1,14 @@
 package com.mogilan.service.impl;
 
 import com.mogilan.exception.EntityNotFoundException;
+import com.mogilan.model.ContactDetails;
+import com.mogilan.model.LawFirm;
+import com.mogilan.model.Lawyer;
+import com.mogilan.model.Task;
 import com.mogilan.repository.LawyerDao;
 import com.mogilan.service.ContactDetailsService;
 import com.mogilan.service.LawyerService;
-import com.mogilan.servlet.dto.ContactDetailsDto;
-import com.mogilan.servlet.dto.LawyerDto;
+import com.mogilan.servlet.dto.*;
 import com.mogilan.servlet.mapper.LawyerMapper;
 
 import java.util.List;
@@ -76,6 +79,7 @@ public class LawyerServiceImpl implements LawyerService {
         var lawyer = lawyerMapper.toEntity(lawyerDto);
         lawyer.setId(id);
         lawyerDao.update(lawyer);
+        lawyerDto.setId(id);
 
         updateContactDetailsDto(id, lawyerDto);
     }

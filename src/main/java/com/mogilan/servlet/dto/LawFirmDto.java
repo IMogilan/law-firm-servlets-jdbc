@@ -15,6 +15,12 @@ public class LawFirmDto {
     public LawFirmDto() {
     }
 
+    public LawFirmDto(String name, LocalDate companyStartDay, List<SimpleLawyerDto> lawyers) {
+        this.name = name;
+        this.companyStartDay = companyStartDay;
+        this.lawyers = lawyers;
+    }
+
     public LawFirmDto(Long id, String name, LocalDate companyStartDay, List<SimpleLawyerDto> lawyers) {
         this.id = id;
         this.name = name;

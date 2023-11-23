@@ -56,6 +56,8 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public boolean isLawyerResponsibleForTask(Long taskId, Long lawyerId) {
+        Objects.requireNonNull(taskId);
+        Objects.requireNonNull(lawyerId);
         var lawyerDtoList = lawyerService.readAllByTaskId(taskId);
         if (lawyerDtoList.isEmpty()) {
             return false;
