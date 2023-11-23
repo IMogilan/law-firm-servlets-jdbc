@@ -27,6 +27,7 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
@@ -59,10 +60,14 @@ class LawFirmServletTest {
     HttpServletResponse resp;
     @Mock
     PrintWriter printWriter;
+    @Mock
+    BufferedReader reader;
     @Captor
     ArgumentCaptor<String> stringCaptor;
     @Captor
     ArgumentCaptor<Integer> integerCaptor;
+    @Captor
+    ArgumentCaptor<Long> longCaptor;
     @Captor
     ArgumentCaptor<List<LawFirmDto>> listArgumentCaptor;
     @Captor
@@ -197,15 +202,156 @@ class LawFirmServletTest {
     }
 
     @Test
-    void doPost() {
+    void doPostSuccess() throws IOException {
+        String pathInfo = "/";
+        doReturn(pathInfo).when(req).getPathInfo();
+
+        doReturn(reader).when(req).getReader();
+
+        var dto = getDto();
+        doReturn(dto).when(objectMapper).readValue(reader, LawFirmDto.class);
+        var dtoWithId = getDtoWithId();
+        doReturn(dtoWithId).when(lawFirmService).create(dto);
+
+        doReturn(printWriter).when(resp).getWriter();
+
+        lawFirmServlet.doPost(req, resp);
+
+        verify(resp, times(1)).setContentType(stringCaptor.capture());
+        assertThat(stringCaptor.getValue()).isEqualTo("application/json");
+
+        verify(resp, times(1)).setCharacterEncoding(stringCaptor.capture());
+        assertThat(stringCaptor.getValue()).isEqualTo(StandardCharsets.UTF_8.name());
+
+        verify(resp, times(1)).setStatus(integerCaptor.capture());
+        assertThat(integerCaptor.getValue()).isEqualTo(HttpServletResponse.SC_CREATED);
+
+        verify(resp, times(1)).getWriter();
+        verify(objectMapper, times(1)).writeValue(any(PrintWriter.class), dtoArgumentCaptor.capture());
+        assertThat(dtoArgumentCaptor.getValue()).isEqualTo(dtoWithId);
     }
 
-    @Test
-    void doPut() {
+    @ParameterizedTest
+    @ValueSource(strings = {"1/", "/1/", "//1"})
+    void doPostRedirectToExceptionHandlerIfPathIncorrect(String pathInfo) throws IOException {
+        doReturn(pathInfo).when(req).getPathInfo();
+
+        lawFirmServlet.doPost(req, resp);
+
+        verify(exceptionHandler).handleException(any(), any());
     }
 
-    @Test
-    void doDelete() {
+    @ParameterizedTest
+    @ValueSource(longs = {1L, 10L, 100L})
+    void doPutSuccessWhenDtoPresent(Long id) throws IOException {
+        String pathInfo = "/" + id;
+        doReturn(pathInfo).when(req).getPathInfo();
+
+        doReturn(reader).when(req).getReader();
+
+        var dto = getDto();
+        doReturn(dto).when(objectMapper).readValue(reader, LawFirmDto.class);
+        doNothing().when(lawFirmService).update(id, dto);
+        doReturn(printWriter).when(resp).getWriter();
+
+        lawFirmServlet.doPut(req, resp);
+
+        verify(resp, times(1)).setContentType(stringCaptor.capture());
+        assertThat(stringCaptor.getValue()).isEqualTo("application/json");
+
+        verify(resp, times(1)).setCharacterEncoding(stringCaptor.capture());
+        assertThat(stringCaptor.getValue()).isEqualTo(StandardCharsets.UTF_8.name());
+
+        verify(resp, times(1)).setStatus(integerCaptor.capture());
+        assertThat(integerCaptor.getValue()).isEqualTo(HttpServletResponse.SC_OK);
+
+        verify(lawFirmService, times(1)).update(longCaptor.capture(), dtoArgumentCaptor.capture());
+        assertThat(longCaptor.getValue()).isEqualTo(id);
+        assertThat(dtoArgumentCaptor.getValue()).isEqualTo(dto);
+
+        verify(resp, times(1)).getWriter();
+        verify(objectMapper, times(1)).writeValue(any(PrintWriter.class), stringCaptor.capture());
+        assertThat(stringCaptor.getValue()).isEqualTo(ServletsUtil.UPDATED_MESSAGE);
+    }
+
+    @ParameterizedTest
+    @ValueSource(longs = {1L, 10L, 100L})
+    void doPutRedirectToExceptionHandlerWhenDtoIsNotPresent(Long id) throws IOException {
+        String pathInfo = "/" + id;
+        doReturn(pathInfo).when(req).getPathInfo();
+
+        doReturn(reader).when(req).getReader();
+
+        var dto = getDto();
+        doReturn(dto).when(objectMapper).readValue(reader, LawFirmDto.class);
+        doThrow(new EntityNotFoundException("Any Message")).when(lawFirmService).update(id, dto);
+
+        lawFirmServlet.doPut(req, resp);
+        verify(lawFirmService, times(1)).update(longCaptor.capture(), dtoArgumentCaptor.capture());
+        assertThat(longCaptor.getValue()).isEqualTo(id);
+        assertThat(dtoArgumentCaptor.getValue()).isEqualTo(dto);
+
+        verify(exceptionHandler).handleException(any(), any());
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"/","1/", "/1/", "//1"})
+    void doPutRedirectToExceptionHandlerIfPathIncorrect(String pathInfo) throws IOException {
+        doReturn(pathInfo).when(req).getPathInfo();
+
+        lawFirmServlet.doPut(req, resp);
+
+        verify(exceptionHandler).handleException(any(), any());
+    }
+
+    @ParameterizedTest
+    @ValueSource(longs = {1L, 10L, 100L})
+    void doDeleteSuccessWhenDtoPresent(Long id) throws IOException {
+        String pathInfo = "/" + id;
+        doReturn(pathInfo).when(req).getPathInfo();
+
+        doNothing().when(lawFirmService).deleteById(id);
+
+        doReturn(printWriter).when(resp).getWriter();
+
+        lawFirmServlet.doDelete(req, resp);
+
+        verify(resp, times(1)).setContentType(stringCaptor.capture());
+        assertThat(stringCaptor.getValue()).isEqualTo("application/json");
+
+        verify(resp, times(1)).setCharacterEncoding(stringCaptor.capture());
+        assertThat(stringCaptor.getValue()).isEqualTo(StandardCharsets.UTF_8.name());
+
+        verify(resp, times(1)).setStatus(integerCaptor.capture());
+        assertThat(integerCaptor.getValue()).isEqualTo(HttpServletResponse.SC_OK);
+
+        verify(lawFirmService, times(1)).deleteById(id);
+
+        verify(resp, times(1)).getWriter();
+        verify(objectMapper, times(1)).writeValue(any(PrintWriter.class), stringCaptor.capture());
+        assertThat(stringCaptor.getValue()).isEqualTo(ServletsUtil.DELETED_MESSAGE);
+    }
+
+    @ParameterizedTest
+    @ValueSource(longs = {1L, 10L, 100L})
+    void doDeleteRedirectToExceptionHandlerWhenDtoIsNotPresent(Long id) throws IOException {
+        String pathInfo = "/" + id;
+        doReturn(pathInfo).when(req).getPathInfo();
+
+        doThrow(new EntityNotFoundException("Any Message")).when(lawFirmService).deleteById(id);
+
+        lawFirmServlet.doDelete(req, resp);
+
+        verify(exceptionHandler).handleException(any(), any());
+    }
+    @ParameterizedTest
+    @ValueSource(strings = {"/","1/", "/1/", "//1"})
+    void doDeleteRedirectToExceptionHandlerIfPathIncorrect(String pathInfo) throws IOException {
+        doReturn(pathInfo).when(req).getPathInfo();
+
+        lawFirmServlet.doDelete(req, resp);
+
+        verify(exceptionHandler).handleException(any(), any());
     }
 
     private LawFirmDto getDto() {
