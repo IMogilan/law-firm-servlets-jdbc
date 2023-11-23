@@ -2,19 +2,10 @@ package com.mogilan.repository.impl;
 
 import com.mogilan.db.ConnectionPool;
 import com.mogilan.db.impl.ConnectionPoolImpl;
-import com.mogilan.model.LawFirm;
-import com.mogilan.repository.ContactDetailsDao;
-import com.mogilan.repository.LawFirmDao;
-import com.mogilan.repository.LawyerDao;
-import com.mogilan.repository.TaskDao;
-import com.mogilan.repository.mapper.ContactDetailsResultSetMapper;
-import com.mogilan.repository.mapper.LawFirmResultSetMapper;
-import com.mogilan.repository.mapper.LawyerResultSetMapper;
-import com.mogilan.repository.mapper.TaskResultSetMapper;
-import com.mogilan.repository.mapper.impl.ContactDetailsResultSetMapperImpl;
-import com.mogilan.repository.mapper.impl.LawFirmResultSetMapperImpl;
-import com.mogilan.repository.mapper.impl.LawyerResultSetMapperImpl;
-import com.mogilan.repository.mapper.impl.TaskResultSetMapperImpl;
+import com.mogilan.model.Client;
+import com.mogilan.repository.*;
+import com.mogilan.repository.mapper.*;
+import com.mogilan.repository.mapper.impl.*;
 import com.mogilan.util.PropertiesUtil;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -26,22 +17,22 @@ import org.testcontainers.containers.PostgreSQLContainer;
 import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.Statement;
-import java.time.LocalDate;
+import java.util.Collections;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
-class LawFirmDaoImplTest {
+class ClientDaoImplTest {
+
     ConnectionPool connectionPool;
     ContactDetailsDao contactDetailsDao;
-    LawFirmDao lawFirmDao;
     TaskDao taskDao;
-    LawyerDao lawyerDao;
+
+    ClientDao clientDao;
     ContactDetailsResultSetMapper contactDetailsResultSetMapper = new ContactDetailsResultSetMapperImpl();
-    TaskResultSetMapper taskResultSetMapper;
-    LawFirmResultSetMapper lawFirmResultSetMapper;
-    LawyerResultSetMapper lawyerResultSetMapper;
+    TaskResultSetMapper taskResultSetMapper = new TaskResultSetMapperImpl();
+    ClientResultSetMapper clientResultSetMapper;
 
     static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>(
             "postgres:15-alpine"
@@ -60,13 +51,11 @@ class LawFirmDaoImplTest {
                 postgres.getPassword(),
                 Integer.parseInt(PropertiesUtil.get("db.pool.size"))
         );
-        taskResultSetMapper = new TaskResultSetMapperImpl();
         contactDetailsDao = new ContactDetailsDaoImpl(connectionPool, contactDetailsResultSetMapper);
         taskDao = new TaskDaoImpl(connectionPool, taskResultSetMapper);
-        lawyerResultSetMapper = new LawyerResultSetMapperImpl(contactDetailsDao, taskDao);
-        lawyerDao = new LawyerDaoImpl(connectionPool, lawyerResultSetMapper);
-        lawFirmResultSetMapper = new LawFirmResultSetMapperImpl(lawyerDao);
-        lawFirmDao = new LawFirmDaoImpl(connectionPool, lawFirmResultSetMapper);
+        clientResultSetMapper = new ClientResultSetMapperImpl(taskDao);
+        clientDao = new ClientDaoImpl(connectionPool, clientResultSetMapper);
+
         populateContainer();
     }
 
@@ -82,80 +71,80 @@ class LawFirmDaoImplTest {
 
     @Test
     void findAllSuccess() {
-        var actualResult = lawFirmDao.findAll();
+        var actualResult = clientDao.findAll();
         assertThat(actualResult).isNotEmpty();
         assertThat(actualResult).hasSize(3);
     }
 
     @Test
     void findAllShouldReturnEmptyListIfTableEmpty() {
-        var lawFirmList = lawFirmDao.findAll();
-        for (LawFirm lawFirm : lawFirmList) {
-            lawFirmDao.delete(lawFirm.getId());
+        var clientList = clientDao.findAll();
+        for (Client client : clientList) {
+            clientDao.delete(client.getId());
         }
-        var actualResult = lawFirmDao.findAll();
-        assertThat(actualResult).isNotNull();
-        assertThat(actualResult).isEmpty();
-    }
-
-    @ParameterizedTest
-    @MethodSource("findByIdSuccessArguments")
-    void findByIdSuccess(Long id, String expectingName, int expectingLawyersNumber) {
-        var actualResult = lawFirmDao.findById(id);
-
-        assertThat(actualResult).isNotNull();
-        assertThat(actualResult).isPresent();
-
-        assertThat(actualResult.get().getName()).isEqualTo(expectingName);
-
-        assertThat(actualResult.get().getLawyers()).isNotNull();
-        assertThat(actualResult.get().getLawyers()).hasSize(expectingLawyersNumber);
-    }
-
-    @ParameterizedTest
-    @ValueSource(longs = {100, 1000, 10000})
-    void testFindByIdShouldReturnEmptyOptionalIfElementAbsent(Long id) {
-        var actualResult = lawFirmDao.findById(id);
+        var actualResult = clientDao.findAll();
         assertThat(actualResult).isNotNull();
         assertThat(actualResult).isEmpty();
     }
 
     @ParameterizedTest
     @MethodSource("findByNameSuccessArguments")
-    void findByNameSuccess(String name, Long expectingId, int expectingLawyersNumber) {
-        var actualResult = lawFirmDao.findByName(name);
+    void findByNameSuccess(String name, Long expectingId, int expectingTaskNumber) {
+        var actualResult = clientDao.findByName(name);
 
         assertThat(actualResult).isNotNull();
         assertThat(actualResult).isPresent();
 
         assertThat(actualResult.get().getId()).isEqualTo(expectingId);
 
-        assertThat(actualResult.get().getLawyers()).isNotNull();
-        assertThat(actualResult.get().getLawyers()).hasSize(expectingLawyersNumber);
+        assertThat(actualResult.get().getTasks()).isNotNull();
+        assertThat(actualResult.get().getTasks()).hasSize(expectingTaskNumber);
     }
 
     @Test
-    void findByNameShouldReturnEmptyListIfNoLawFirmWithSuchName() {
+    void findByNameShouldReturnEmptyListIfNoClientsWithSuchName() {
         var any = "Any Name";
-        var actualResult = lawFirmDao.findByName(any);
+        var actualResult = clientDao.findByName(any);
 
+        assertThat(actualResult).isNotNull();
+        assertThat(actualResult).isEmpty();
+    }
+
+    @ParameterizedTest
+    @MethodSource("findByIdSuccessArguments")
+    void findByIdSuccess(Long id, String expectingName, int expectingTaskNumber) {
+        var actualResult = clientDao.findById(id);
+
+        assertThat(actualResult).isNotNull();
+        assertThat(actualResult).isPresent();
+
+        assertThat(actualResult.get().getName()).isEqualTo(expectingName);
+
+        assertThat(actualResult.get().getTasks()).isNotNull();
+        assertThat(actualResult.get().getTasks()).hasSize(expectingTaskNumber);
+    }
+
+    @ParameterizedTest
+    @ValueSource(longs = {100, 1000, 10000})
+    void testFindByIdShouldReturnEmptyOptionalIfElementAbsent(Long id) {
+        var actualResult = clientDao.findById(id);
         assertThat(actualResult).isNotNull();
         assertThat(actualResult).isEmpty();
     }
 
     @Test
     void saveSuccess() {
-        var prevListSize = lawFirmDao.findAll().size();
+        var prevListSize = clientDao.findAll().size();
 
-        var lawFirm = new LawFirm("Precedent", LocalDate.of(1993,1,1));
-        var actualResult = lawFirmDao.save(lawFirm);
+        var newClient = new Client("Nik&Marta", "New client", Collections.emptyList());
+        var actualResult = clientDao.save(newClient);
         assertThat(actualResult).isNotNull();
         assertThat(actualResult.getId()).isNotNull();
 
-        lawFirm.setId(actualResult.getId());
-        assertThat(actualResult).isEqualTo(lawFirm);
+        newClient.setId(actualResult.getId());
+        assertThat(actualResult).isEqualTo(newClient);
 
-        var newListSize = lawFirmDao.findAll().size();
+        var newListSize = clientDao.findAll().size();
         assertThat(prevListSize + 1).isEqualTo(newListSize);
     }
 
@@ -163,20 +152,20 @@ class LawFirmDaoImplTest {
     void saveShouldRedirectToUpdateIfIdAlreadyPresentInTable() {
         Long id = 1L;
 
-        var prevListSize = lawFirmDao.findAll().size();
+        var prevListSize = clientDao.findAll().size();
 
-        var lawFirmById = lawFirmDao.findById(id);
-        assertThat(lawFirmById).isPresent();
+        var clientById = clientDao.findById(id);
+        assertThat(clientById).isPresent();
 
-        var lawFirm = new LawFirm(id, "Precedent", LocalDate.of(1993,1,1));
-        var actualResult = lawFirmDao.save(lawFirm);
+        var newClient = new Client(id, "Nik&Marta", "New client", Collections.emptyList());
+        var actualResult = clientDao.save(newClient);
         assertThat(actualResult).isNotNull();
         assertThat(actualResult.getId()).isNotNull();
         assertThat(actualResult.getId()).isEqualTo(id);
 
-        assertThat(actualResult).isEqualTo(lawFirm);
+        assertThat(actualResult).isEqualTo(newClient);
 
-        var newListSize = lawFirmDao.findAll().size();
+        var newListSize = clientDao.findAll().size();
         assertThat(prevListSize).isEqualTo(newListSize);
     }
 
@@ -184,25 +173,25 @@ class LawFirmDaoImplTest {
     void updateSuccess() {
         Long id = 1L;
 
-        var prevListSize = lawFirmDao.findAll().size();
+        var prevListSize = clientDao.findAll().size();
 
-        var lawFirmById = lawFirmDao.findById(id);
-        assertThat(lawFirmById).isPresent();
+        var clientById = clientDao.findById(id);
+        assertThat(clientById).isPresent();
 
-        var prevValue = lawFirmById.get();
+        var prevValue = clientById.get();
 
-        var lawFirm = new LawFirm(id, "Precedent", LocalDate.of(1993,1,1));
-        var actualResult = lawFirmDao.update(lawFirm);
+        var newClient = new Client(id, "Nik&Marta", "New client", Collections.emptyList());
+        var actualResult = clientDao.update(newClient);
         assertThat(actualResult).isNotNull();
         assertTrue(actualResult);
 
-        var newValue = lawFirmDao.findById(id);
+        var newValue = clientDao.findById(id);
         assertThat(newValue).isPresent();
 
-        assertThat(newValue.get()).isEqualTo(lawFirm);
+        assertThat(newValue.get()).isEqualTo(newClient);
         assertThat(newValue.get()).isNotEqualTo(prevValue);
 
-        var newListSize = lawFirmDao.findAll().size();
+        var newListSize = clientDao.findAll().size();
         assertThat(prevListSize).isEqualTo(newListSize);
     }
 
@@ -210,17 +199,17 @@ class LawFirmDaoImplTest {
     void updateShouldReturnFalseIfIdNotPresentInTable() {
         Long id = 100L;
 
-        var prevListSize = lawFirmDao.findAll().size();
+        var prevListSize = clientDao.findAll().size();
 
-        var lawFirmById = lawFirmDao.findById(id);
-        assertThat(lawFirmById).isEmpty();
+        var clientById = clientDao.findById(id);
+        assertThat(clientById).isEmpty();
 
-        var lawFirm = new LawFirm(id, "Precedent", LocalDate.of(1993,1,1));
-        var actualResult = lawFirmDao.update(lawFirm);
+        var newClient = new Client(id, "Nik&Marta", "New client", Collections.emptyList());
+        var actualResult = clientDao.update(newClient);
         assertThat(actualResult).isNotNull();
         assertFalse(actualResult);
 
-        var newListSize = lawFirmDao.findAll().size();
+        var newListSize = clientDao.findAll().size();
         assertThat(prevListSize).isEqualTo(newListSize);
     }
 
@@ -228,19 +217,19 @@ class LawFirmDaoImplTest {
     void deleteSuccess() {
         Long id = 1L;
 
-        var prevListSize = lawFirmDao.findAll().size();
+        var prevListSize = clientDao.findAll().size();
 
-        var lawFirmById = lawFirmDao.findById(id);
-        assertThat(lawFirmById).isPresent();
+        var clientById = clientDao.findById(id);
+        assertThat(clientById).isPresent();
 
-        var actualResult = lawFirmDao.delete(id);
+        var actualResult = clientDao.delete(id);
         assertThat(actualResult).isNotNull();
         assertTrue(actualResult);
 
-        var newValue = lawFirmDao.findById(id);
+        var newValue = clientDao.findById(id);
         assertThat(newValue).isEmpty();
 
-        var newListSize = lawFirmDao.findAll().size();
+        var newListSize = clientDao.findAll().size();
         assertThat(prevListSize - 1).isEqualTo(newListSize);
     }
 
@@ -248,31 +237,32 @@ class LawFirmDaoImplTest {
     void deleteShouldReturnFalseIfIdNotPresentInTable() {
         Long id = 100L;
 
-        var prevListSize = lawFirmDao.findAll().size();
+        var prevListSize = clientDao.findAll().size();
 
-        var lawFirmById = lawFirmDao.findById(id);
-        assertThat(lawFirmById).isEmpty();
+        var clientById = clientDao.findById(id);
+        assertThat(clientById).isEmpty();
 
-        var actualResult = lawFirmDao.delete(id);
+        var actualResult = clientDao.delete(id);
         assertThat(actualResult).isNotNull();
         assertFalse(actualResult);
 
-        var newListSize = lawFirmDao.findAll().size();
+        var newListSize = clientDao.findAll().size();
         assertThat(prevListSize).isEqualTo(newListSize);
+    }
+
+    static Stream<Arguments> findByNameSuccessArguments() {
+        return Stream.of(
+                Arguments.of("Apple", 1L, 1),
+                Arguments.of("Elon M.", 2L, 1),
+                Arguments.of("Peter&Mike", 3L, 1)
+        );
     }
 
     static Stream<Arguments> findByIdSuccessArguments() {
         return Stream.of(
-                Arguments.of(1L, "Law Firm A", 3),
-                Arguments.of(2L, "Law Firm B", 3),
-                Arguments.of(3L, "Law Firm C", 4)
-        );
-    }
-    static Stream<Arguments> findByNameSuccessArguments() {
-        return Stream.of(
-                Arguments.of("Law Firm A", 1L, 3),
-                Arguments.of("Law Firm B", 2L, 3),
-                Arguments.of("Law Firm C", 3L, 4)
+                Arguments.of(1L, "Apple", 1),
+                Arguments.of(2L, "Elon M.", 1),
+                Arguments.of(3L, "Peter&Mike", 1)
         );
     }
 
@@ -301,4 +291,5 @@ class LawFirmDaoImplTest {
             throw new RuntimeException("Error populating container", e);
         }
     }
+
 }

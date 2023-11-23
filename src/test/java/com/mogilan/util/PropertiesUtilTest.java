@@ -24,7 +24,7 @@ class PropertiesUtilTest {
                 Arguments.of(ConnectionPoolImpl.USER_KEY, "postgres"),
                 Arguments.of(ConnectionPoolImpl.PASSWORD_KEY, "postgres"),
                 Arguments.of(ConnectionPoolImpl.DRIVER_KEY, "org.postgresql.Driver"),
-                Arguments.of(ConnectionPoolImpl.POOL_SIZE_KEY, "5")
+                Arguments.of(ConnectionPoolImpl.POOL_SIZE_KEY, "10")
         );
     }
 }

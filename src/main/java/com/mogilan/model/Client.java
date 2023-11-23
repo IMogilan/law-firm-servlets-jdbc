@@ -17,6 +17,12 @@ public class Client {
         this.description = description;
     }
 
+    public Client(String name, String description, List<Task> tasks) {
+        this.name = name;
+        this.description = description;
+        this.tasks = tasks;
+    }
+
     public Client(Long id, String name, String description) {
         this.id = id;
         this.name = name;

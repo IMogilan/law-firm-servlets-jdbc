@@ -2,16 +2,16 @@ package com.mogilan.repository.mapper.impl;
 
 import com.mogilan.exception.DaoException;
 import com.mogilan.model.Client;
-import com.mogilan.repository.impl.TaskDaoImpl;
+import com.mogilan.repository.TaskDao;
 import com.mogilan.repository.mapper.ClientResultSetMapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class ClientResultSetMapperImpl implements ClientResultSetMapper {
-    private final TaskDaoImpl taskDao;
+    private final TaskDao taskDao;
 
-    public ClientResultSetMapperImpl(TaskDaoImpl taskDao) {
+    public ClientResultSetMapperImpl(TaskDao taskDao) {
         this.taskDao = taskDao;
     }
 
