@@ -2,43 +2,39 @@ package com.mogilan.db.impl;
 
 import com.mogilan.util.PropertiesUtil;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.testcontainers.containers.PostgreSQLContainer;
 
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.concurrent.BlockingQueue;
 
 import static org.assertj.core.api.Assertions.*;
-
+@ExtendWith(MockitoExtension.class)
 class ConnectionPoolImplTest {
 
-    @Test
-    void poolSizeCorrectWhenDefaultConstructor() throws NoSuchFieldException, IllegalAccessException {
-        var connectionPool = new ConnectionPoolImpl();
+    static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>(
+            "postgres:15-alpine"
+    );
 
-        var poolField = connectionPool.getClass().getDeclaredField("pool");
-        assertThat(poolField).isNotNull();
-        try {
-            poolField.setAccessible(true);
-            var pool = poolField.get(connectionPool);
-            assertThat(pool).isNotNull();
-            assertThat(pool).isInstanceOf(BlockingQueue.class);
-            var blockingQueue = (BlockingQueue<Connection>) pool;
-            assertThat(blockingQueue).isNotEmpty();
-            assertThat(blockingQueue).hasSize(Integer.parseInt(PropertiesUtil.get(ConnectionPoolImpl.POOL_SIZE_KEY)));
-        } finally {
-            poolField.setAccessible(false);
-        }
+    @BeforeAll
+    static void beforeAll() {
+        postgres.start();
     }
 
     @Test
     void poolSizeCorrectWhenParamConstructor() throws NoSuchFieldException, IllegalAccessException {
-        int givenSize = 10;
+        var poolSize = Integer.parseInt(PropertiesUtil.get("db.pool.size"));
         var connectionPool = new ConnectionPoolImpl(
-                PropertiesUtil.get(ConnectionPoolImpl.URL_KEY),
-                PropertiesUtil.get(ConnectionPoolImpl.USER_KEY),
-                PropertiesUtil.get(ConnectionPoolImpl.PASSWORD_KEY),
-                givenSize);
+                postgres.getJdbcUrl(),
+                postgres.getUsername(),
+                postgres.getPassword(),
+                poolSize);
 
         var poolField = connectionPool.getClass().getDeclaredField("pool");
         assertThat(poolField).isNotNull();
@@ -49,7 +45,7 @@ class ConnectionPoolImplTest {
             assertThat(pool).isInstanceOf(BlockingQueue.class);
             var blockingQueue = (BlockingQueue<Connection>) pool;
             assertThat(blockingQueue).isNotEmpty();
-            assertThat(blockingQueue).hasSize(givenSize);
+            assertThat(blockingQueue).hasSize(poolSize);
         } finally {
             poolField.setAccessible(false);
         }
@@ -68,7 +64,12 @@ class ConnectionPoolImplTest {
 
     @Test
     void getConnectionSuccess() throws NoSuchFieldException, IllegalAccessException, SQLException {
-        var connectionPool = new ConnectionPoolImpl();
+        var poolSize = Integer.parseInt(PropertiesUtil.get("db.pool.size"));
+        var connectionPool = new ConnectionPoolImpl(
+                postgres.getJdbcUrl(),
+                postgres.getUsername(),
+                postgres.getPassword(),
+                poolSize);
         try (var connection = connectionPool.getConnection()) {
             assertThat(connection).isNotNull();
             assertThat(connection).isInstanceOf(Connection.class);
@@ -93,7 +94,12 @@ class ConnectionPoolImplTest {
 
     @Test
     void connectionShouldBeAddedToPoolOnCloseMethodInvocation() throws NoSuchFieldException, IllegalAccessException, SQLException {
-        var connectionPool = new ConnectionPoolImpl();
+        var poolSize = Integer.parseInt(PropertiesUtil.get("db.pool.size"));
+        var connectionPool = new ConnectionPoolImpl(
+                postgres.getJdbcUrl(),
+                postgres.getUsername(),
+                postgres.getPassword(),
+                poolSize);
 
         var connection = connectionPool.getConnection();
         assertThat(connection).isNotNull();
@@ -120,7 +126,12 @@ class ConnectionPoolImplTest {
 
     @Test
     void closePoolSuccess() throws NoSuchFieldException, IllegalAccessException, SQLException {
-        var connectionPool = new ConnectionPoolImpl();
+        var poolSize = Integer.parseInt(PropertiesUtil.get("db.pool.size"));
+        var connectionPool = new ConnectionPoolImpl(
+                postgres.getJdbcUrl(),
+                postgres.getUsername(),
+                postgres.getPassword(),
+                poolSize);
         connectionPool.closePool();
 
         var poolField = connectionPool.getClass().getDeclaredField("pool");
