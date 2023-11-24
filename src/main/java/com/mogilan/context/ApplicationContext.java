@@ -17,10 +17,16 @@ public class ApplicationContext {
 
     public ApplicationContext() {
         beans = new HashMap<>();
-        initAppContext(beans);
+        var connectionPool = new ConnectionPoolImpl();
+        initAppContext(beans, connectionPool);
     }
 
-    private void initAppContext(HashMap<String, Object> beans) {
+    public ApplicationContext(ConnectionPoolImpl connectionPool) {
+        beans = new HashMap<>();
+        initAppContext(beans, connectionPool);
+    }
+
+    private void initAppContext(HashMap<String, Object> beans, ConnectionPoolImpl connectionPool) {
 
         var objectMapper = new ObjectMapper();
         beans.put("objectMapper", objectMapper);
@@ -28,7 +34,6 @@ public class ApplicationContext {
         var exceptionHandler = new ServletExceptionHandlerImpl(objectMapper);
         beans.put("servletExceptionHandler", exceptionHandler);
 
-        var connectionPool = new ConnectionPoolImpl();
         beans.put("connectionPool", connectionPool);
 
         var contactDetailsResultSetMapper = new ContactDetailsResultSetMapperImpl();
