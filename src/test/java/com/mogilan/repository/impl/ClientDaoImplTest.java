@@ -62,6 +62,7 @@ class ClientDaoImplTest {
     @AfterEach
     void afterEach() {
         dropTablesInContainer();
+        connectionPool.closePool();
     }
 
     @AfterAll

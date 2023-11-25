@@ -52,6 +52,7 @@ class ContactDetailsDaoImplTest {
     @AfterEach
     void afterEach() {
         dropTablesInContainer();
+        connectionPool.closePool();
     }
 
     @AfterAll

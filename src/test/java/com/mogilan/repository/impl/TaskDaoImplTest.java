@@ -59,6 +59,7 @@ class TaskDaoImplTest {
     @AfterEach
     void afterEach() {
         dropTablesInContainer();
+        connectionPool.closePool();
     }
 
     @AfterAll

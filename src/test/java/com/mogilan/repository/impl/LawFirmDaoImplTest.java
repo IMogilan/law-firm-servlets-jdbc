@@ -73,6 +73,7 @@ class LawFirmDaoImplTest {
     @AfterEach
     void afterEach() {
         dropTablesInContainer();
+        connectionPool.closePool();
     }
 
     @AfterAll

@@ -75,6 +75,7 @@ class LawyerDaoImplTest {
     @AfterEach
     void afterEach() {
         dropTablesInContainer();
+        connectionPool.closePool();
     }
 
     @AfterAll
