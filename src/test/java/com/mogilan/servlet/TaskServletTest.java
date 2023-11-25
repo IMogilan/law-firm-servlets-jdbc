@@ -21,6 +21,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -76,12 +77,8 @@ class TaskServletTest {
     ArgumentCaptor<List<LawyerDto>> subResourcesListArgumentCaptor;
     @Captor
     ArgumentCaptor<LawyerDto> subResourcesDtoArgumentCaptor;
+    @InjectMocks
     TaskServlet taskServlet;
-
-    @BeforeEach
-    void beforeEach() {
-        taskServlet = new TaskServlet(taskService, lawyerService, exceptionHandler, objectMapper);
-    }
 
     @Test
     void init() throws ServletException {

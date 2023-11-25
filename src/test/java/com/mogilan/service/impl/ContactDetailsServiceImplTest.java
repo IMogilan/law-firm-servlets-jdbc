@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -28,16 +29,11 @@ class ContactDetailsServiceImplTest {
     ContactDetailsDao contactDetailsDao;
     @Mock
     ContactDetailsMapper contactDetailsMapper;
-    ContactDetailsService contactDetailsService;
+    @InjectMocks
+    ContactDetailsServiceImpl contactDetailsService;
 
     @Captor
     ArgumentCaptor<ContactDetails> captor;
-
-
-    @BeforeEach
-    void beforeEach(){
-        contactDetailsService = new ContactDetailsServiceImpl(contactDetailsDao, contactDetailsMapper);;
-    }
 
     @Test
     void createSuccess() {

@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -38,12 +39,8 @@ class TaskServiceImplTest {
     LawyerService lawyerService;
     @Captor
     ArgumentCaptor<Task> taskArgumentCaptor;
-    TaskService taskService;
-
-    @BeforeEach
-    void beforeEach(){
-        taskService = new TaskServiceImpl(taskDao, taskMapper, lawyerService);
-    }
+    @InjectMocks
+    TaskServiceImpl taskService;
 
     @Test
     void create() {

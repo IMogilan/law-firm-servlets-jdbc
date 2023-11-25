@@ -21,6 +21,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -75,13 +76,8 @@ class LawyerServletTest {
     ArgumentCaptor<List<TaskDto>> subResourcesListArgumentCaptor;
     @Captor
     ArgumentCaptor<TaskDto> subResourcesDtoArgumentCaptor;
-
+    @InjectMocks
     LawyerServlet lawyerServlet;
-
-    @BeforeEach
-    void beforeEach(){
-        lawyerServlet = new LawyerServlet(lawyerService, taskService, exceptionHandler, objectMapper);
-    }
 
     @Test
     void init() throws ServletException {
@@ -300,7 +296,7 @@ class LawyerServletTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"/","1/", "/1/", "//1"})
+    @ValueSource(strings = {"/", "1/", "/1/", "//1"})
     void doPutRedirectToExceptionHandlerIfPathIncorrect(String pathInfo) throws IOException {
         doReturn(pathInfo).when(req).getPathInfo();
 
@@ -349,8 +345,9 @@ class LawyerServletTest {
 
         verify(exceptionHandler).handleException(any(), any());
     }
+
     @ParameterizedTest
-    @ValueSource(strings = {"/","1/", "/1/", "//1"})
+    @ValueSource(strings = {"/", "1/", "/1/", "//1"})
     void doDeleteRedirectToExceptionHandlerIfPathIncorrect(String pathInfo) throws IOException {
         doReturn(pathInfo).when(req).getPathInfo();
 
@@ -358,6 +355,7 @@ class LawyerServletTest {
 
         verify(exceptionHandler).handleException(any(), any());
     }
+
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // SubResources
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -574,6 +572,7 @@ class LawyerServletTest {
 
         verify(exceptionHandler).handleException(any(), any());
     }
+
     @ParameterizedTest
     @ValueSource(strings = {"1/", "/1/", "//1", "tasks/1", "tasks/1/1"})
     void doPutSubResourcesRedirectToExceptionHandlerIfPathIncorrect(String pathInfo) throws IOException {
@@ -632,6 +631,7 @@ class LawyerServletTest {
 
         verify(exceptionHandler).handleException(any(), any());
     }
+
     @ParameterizedTest
     @ValueSource(strings = {"1/", "/1/", "//1", "tasks/1", "tasks/1/1"})
     void doDeleteSubResourcesRedirectToExceptionHandlerIfPathIncorrect(String pathInfo) throws IOException {
@@ -641,7 +641,6 @@ class LawyerServletTest {
 
         verify(exceptionHandler).handleException(any(), any());
     }
-
 
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////

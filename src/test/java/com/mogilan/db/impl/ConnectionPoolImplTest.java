@@ -1,6 +1,7 @@
 package com.mogilan.db.impl;
 
 import com.mogilan.util.PropertiesUtil;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -25,6 +26,10 @@ class ConnectionPoolImplTest {
     @BeforeAll
     static void beforeAll() {
         postgres.start();
+    }
+    @AfterAll
+    static void afterAll(){
+        postgres.stop();
     }
 
     @Test

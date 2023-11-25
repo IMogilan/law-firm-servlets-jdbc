@@ -6,6 +6,7 @@ import com.mogilan.exception.handler.impl.ServletExceptionHandlerImpl;
 import com.mogilan.repository.impl.LawyerDaoImpl;
 import com.mogilan.service.impl.TaskServiceImpl;
 import com.mogilan.util.PropertiesUtil;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -13,7 +14,6 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.testcontainers.containers.PostgreSQLContainer;
 
-import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.stream.Stream;
 
@@ -28,6 +28,10 @@ class ApplicationContextTest {
     @BeforeAll
     static void beforeAll() {
         postgres.start();
+    }
+    @AfterAll
+    static void afterAll(){
+        postgres.stop();
     }
 
     @Test

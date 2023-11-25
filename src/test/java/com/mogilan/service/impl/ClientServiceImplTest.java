@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -41,13 +42,8 @@ class ClientServiceImplTest {
     ClientMapper clientMapper;
     @Captor
     ArgumentCaptor<Client> captor;
-    ClientService clientService;
-
-
-    @BeforeEach
-    void beforeEach() {
-        clientService = new ClientServiceImpl(clientDao, clientMapper, taskService, simpleTaskMapper, taskMapper);
-    }
+    @InjectMocks
+    ClientServiceImpl clientService;
 
     @Test
     void createSuccess() {

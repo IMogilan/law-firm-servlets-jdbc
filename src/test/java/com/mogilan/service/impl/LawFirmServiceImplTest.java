@@ -17,6 +17,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -45,12 +46,8 @@ class LawFirmServiceImplTest {
     LawFirmMapper lawFirmMapper;
     @Captor
     ArgumentCaptor<LawFirm> captor;
-    LawFirmService lawFirmService;
-
-    @BeforeEach
-    void beforeEach() {
-        lawFirmService = new LawFirmServiceImpl(lawFirmDao, lawFirmMapper, lawyerService, simpleLawyerMapper, lawyerMapper);
-    }
+    @InjectMocks
+    LawFirmServiceImpl lawFirmService;
 
     @Test
     void createSuccess() {

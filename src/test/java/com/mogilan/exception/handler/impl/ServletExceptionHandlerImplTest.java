@@ -36,12 +36,8 @@ class ServletExceptionHandlerImplTest {
     ArgumentCaptor<String> stringCaptor;
     @Captor
     ArgumentCaptor<Integer> integerCaptor;
+    @InjectMocks
     ServletExceptionHandlerImpl servletExceptionHandler;
-
-    @BeforeEach
-    void setUp() {
-        servletExceptionHandler = new ServletExceptionHandlerImpl(objectMapper);
-    }
 
     @ParameterizedTest
     @MethodSource("handleExceptionSuccessArguments")

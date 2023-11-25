@@ -20,6 +20,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -67,12 +68,8 @@ class ContactDetailsServletTest {
     ArgumentCaptor<List<ContactDetailsDto>> listArgumentCaptor;
     @Captor
     ArgumentCaptor<ContactDetailsDto> dtoArgumentCaptor;
+    @InjectMocks
     ContactDetailsServlet contactDetailsServlet;
-
-    @BeforeEach
-    void beforeEach(){
-        contactDetailsServlet = new ContactDetailsServlet(contactDetailsService, exceptionHandler, objectMapper);
-    }
 
     @Test
     void init() throws ServletException {
