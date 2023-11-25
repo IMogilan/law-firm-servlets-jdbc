@@ -1,48 +1,32 @@
 package com.mogilan.context;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mogilan.db.impl.ConnectionPoolImpl;
+import com.mogilan.db.ConnectionPool;
 import com.mogilan.exception.handler.impl.ServletExceptionHandlerImpl;
 import com.mogilan.repository.impl.LawyerDaoImpl;
 import com.mogilan.service.impl.TaskServiceImpl;
-import com.mogilan.util.PropertiesUtil;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.testcontainers.containers.PostgreSQLContainer;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.HashMap;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.*;
-
+@ExtendWith(MockitoExtension.class)
 class ApplicationContextTest {
-
-    static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>(
-            "postgres:15-alpine"
-    );
-
-    @BeforeAll
-    static void beforeAll() {
-        postgres.start();
-    }
-    @AfterAll
-    static void afterAll(){
-        postgres.stop();
-    }
+    @Mock
+    ConnectionPool connectionPool;
+    @InjectMocks
+    ApplicationContext applicationContext;
 
     @Test
     void initAppContextSuccess() throws NoSuchFieldException, IllegalAccessException {
-        var poolSize = Integer.parseInt(PropertiesUtil.get("db.pool.size"));
-        var connectionPool = new ConnectionPoolImpl(
-                postgres.getJdbcUrl(),
-                postgres.getUsername(),
-                postgres.getPassword(),
-                poolSize);
-        var applicationContext = new ApplicationContext(connectionPool);
         assertThat(applicationContext).isNotNull();
         HashMap beans;
         var beansField = applicationContext.getClass().getDeclaredField("beans");
@@ -59,13 +43,6 @@ class ApplicationContextTest {
     @ParameterizedTest
     @MethodSource("getDependencySuccessArguments")
     void getDependencySuccess(String key, Class expectedClass) {
-        var poolSize = Integer.parseInt(PropertiesUtil.get("db.pool.size"));
-        var connectionPool = new ConnectionPoolImpl(
-                postgres.getJdbcUrl(),
-                postgres.getUsername(),
-                postgres.getPassword(),
-                poolSize);
-        var applicationContext = new ApplicationContext(connectionPool);
         var actualResult = applicationContext.getDependency(key);
         assertThat(actualResult).isNotNull();
         assertThat(actualResult).isInstanceOf(expectedClass);

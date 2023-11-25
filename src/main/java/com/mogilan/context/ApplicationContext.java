@@ -1,6 +1,7 @@
 package com.mogilan.context;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mogilan.db.ConnectionPool;
 import com.mogilan.db.impl.ConnectionPoolImpl;
 import com.mogilan.exception.handler.impl.ServletExceptionHandlerImpl;
 import com.mogilan.repository.impl.*;
@@ -14,19 +15,21 @@ import java.util.HashMap;
 public class ApplicationContext {
 
     private final HashMap<String, Object> beans;
+    ConnectionPool connectionPool;
 
     public ApplicationContext() {
         beans = new HashMap<>();
-        var connectionPool = new ConnectionPoolImpl();
-        initAppContext(beans, connectionPool);
+        connectionPool = new ConnectionPoolImpl();
+        initAppContext(beans);
     }
 
-    public ApplicationContext(ConnectionPoolImpl connectionPool) {
+    public ApplicationContext(ConnectionPool connectionPool) {
         beans = new HashMap<>();
-        initAppContext(beans, connectionPool);
+        this.connectionPool = connectionPool;
+        initAppContext(beans);
     }
 
-    private void initAppContext(HashMap<String, Object> beans, ConnectionPoolImpl connectionPool) {
+    private void initAppContext(HashMap<String, Object> beans) {
 
         var objectMapper = new ObjectMapper();
         beans.put("objectMapper", objectMapper);
